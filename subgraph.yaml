@@ -33,6 +33,6 @@ dataSources:
           handler: handleEditionsAuctionCreated
         # - event: EditionPurchased(uint256,address)
         #   handler: handleEditionPurchased
-        # - event: AuctionApprovalUpdated(uint256,address,bool)
-        #   handler: handleAuctionApprovalUpdated
+        - event: AuctionApprovalUpdated(uint256,address,bool)
+          handler: handleAuctionApprovalUpdated
       file: ./src/editionsAuction.ts

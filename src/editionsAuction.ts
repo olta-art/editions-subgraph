@@ -1,6 +1,12 @@
 import {
-  AuctionCreated
+  AuctionCreated,
+  AuctionApprovalUpdated,
+  EditionsAuction__auctionsResult
 } from '../types/EditionsAuction/EditionsAuction'
+
+import {
+  EditionsAuction
+} from '../types/schema'
 
 import {
   createEditionsAuction,
@@ -43,4 +49,21 @@ export function handleEditionsAuctionCreated(event: AuctionCreated): void {
   log.info(`Completed handler for AuctionCreated for auction {}`, [
     event.params.auctionId.toString(),
   ])
+}
+
+export function handleAuctionApprovalUpdated(event: AuctionApprovalUpdated): void {
+  let id = event.params.auctionId.toString()
+  log.info(`Starting handler for AuctionApprovalUpdate on auction {}`, [id])
+
+  let auction = EditionsAuction.load(id)
+  if(auction == null) return
+
+  auction.approved = event.params.approved
+  // TODO: should status change to canceld if approved is false?
+  auction.status = 'Active'
+  auction.approvedTimestamp = event.block.timestamp
+  auction.approvedBlockNumber = event.block.number
+  auction.save()
+
+  log.info(`Completed handler for AuctionApprovalUpdate on auction {}`, [id])
 }
