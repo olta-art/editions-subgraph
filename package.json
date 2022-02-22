@@ -1,0 +1,16 @@
+{
+  "name": "editions-auction-subgraph",
+  "version": "0.1.0",
+  "author": "olta.art",
+  "license": "MIT",
+  "scripts": {
+    "prepare:local": "mustache config/50.json subgraph.template.yaml > subgraph.yaml",
+    "create-local": "graph create olta-art/edtions-auction-subgraph --node http://127.0.0.1:8020",
+    "codegen": "graph codegen --output-dir types",
+    "deploy-local": "graph deploy olta-art/edtions-auction-subgraph --ipfs http://localhost:5001 --node http://127.0.0.1:8020"
+  },
+  "devDependencies": {
+    "@graphprotocol/graph-ts": "^0.24.1",
+    "mustache": "^4.2.0"
+  }
+}

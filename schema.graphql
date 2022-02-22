@@ -1,0 +1,180 @@
+type TokenContractFactory @entity {
+  # TODO: the factory contract for zora NFT editions
+  # NOTE: see here https://thegraph.com/docs/en/developer/create-subgraph-hosted/#data-source-templates
+  # NOTE: there may be different ones but just olta's for now
+  id: ID!
+  tokenContracts: [TokenContract!]
+}
+
+type TokenContract @entity {
+  # TODO: zora NFT edtitions - maybe one already exists?
+  # NOTE: just id and creator for now while testing
+  # editions, totalToMint, tokenContractFactory ... and so on
+
+  "The address of the token contract"
+   id: ID!
+
+  "The creator of the Media"
+  creator: User!
+
+  "The tokens minted"
+  tokens: [Token!]
+}
+
+type Token @entity {
+  #TODO: add more (see zora's media entitiy) just added these values for now
+  "The tokenId on the Zora Media Contract"
+  id: ID!
+   "The current owner of the Media"
+  owner: User!
+
+  "The creator of the Media"
+  creator: User!
+
+  "The previous owner of the Zora Media's Market"
+  prevOwner: User!
+}
+
+type Currency @entity {
+  "The address of the Currency"
+  id: ID!
+
+  "The name of the Currency"
+  name: String!
+
+  "The symbol of the Currency"
+  symbol: String!
+
+  "The decimals of the Currency"
+  decimals: Int
+
+  "The active Bids denominated in the Currency"
+  previousPurchases: [Purchase!] @derivedFrom(field: "currency")
+}
+
+type User @entity {
+  "Ethereum Address"
+  id: ID!
+
+  "Users that have been granted `ApprovalForAll` Media of the User's Collection"
+  authorizedUsers: [User!]
+
+  # "The Media the User owns"
+  # collection: [Media!]! @derivedFrom(field: "owner")
+
+  # "The Media the User created"
+  # creations: [Media!]! @derivedFrom(field: "creator")
+
+  "The active Bids made by the User"
+  previousPurchases: [Purchase!] @derivedFrom(field: "collector")
+}
+
+enum PurchaseType {
+  Refunded
+  Final
+}
+
+type Purchase @entity {
+  "<auctionId>-<txHash>-<logIndex>"
+  id: ID!
+
+  "The transaction hash the reserve auction big was created at"
+  transactionHash: String!
+
+  "The Reserve auction associated with the Bid"
+  EditionsAuction: EditionsAuction!
+
+  "The amount of the Bid"
+  amount: BigInt!
+
+  "The currency of the Purchase"
+  currency: Currency!
+
+  "The bidder of the Bid"
+  collector: User!
+
+  "The type of bid (refunded, final)"
+  purchaseType: PurchaseType!
+
+  "The timestamp of the block the Bid was created in"
+  createdAtTimestamp: BigInt!
+
+  "The number of the block the Bid was created in"
+  createdAtBlockNumber: BigInt!
+}
+
+enum EditionsAuctionStatus {
+  Pending
+  Active
+  Canceled
+  Finished
+}
+
+type EditionsAuction @entity {
+  "ID of the editions auction from contract, autoincrementing int"
+  id: ID!
+
+  "Transaction hash where the editions auction was created"
+  transactionHash: String!
+
+  "The originating token contract for this auction"
+  tokenContract: TokenContract!
+
+  "Whether or not the auction has been approved by the curator"
+  approved: Boolean!
+
+  "The length of time the auction is intended to run for, after the first bid is made"
+  duration: BigInt!
+
+  "The time the auction will start"
+  startTimestamp: BigInt
+
+  "The time the auction will reach it's end price"
+  endTimestamp: BigInt
+
+  "The price the auction starts at"
+  startPrice: BigInt!
+
+  "The price the auction ends at"
+  endPrice: BigInt!
+
+  "The sale percentage to send to the curator"
+  curatorRoyaltyBPS: BigInt!
+
+  "The address that created the editions and will recieve funds"
+  creator: User!
+
+  "The address of the auction's curator"
+  curator: User!
+
+  # "The address of the ERC-20 currency to run the auction with, or 0x0 for ETH"
+  auctionCurrency: Currency!
+
+  status: EditionsAuctionStatus!
+
+  "The current bid on this auction"
+  currentPrice: BigInt
+
+  "The previous bids on this auction"
+  previousPurchases: [Purchase!]  @derivedFrom(field: "EditionsAuction")
+
+  "The time the auction was approved"
+  approvedTimestamp: BigInt
+
+  "The number of the block the auction was Approved"
+  approvedBlockNumber: BigInt
+
+  "The timestamp of the block the Transfer was created in"
+  createdAtTimestamp: BigInt!
+
+  "The number of the block the Transfer was created in"
+  createdAtBlockNumber: BigInt!
+
+  "The timestamp at which the auction end function was called"
+  finalizedAtTimestamp: BigInt
+
+  "The block number at which the auction end function was called"
+  finalizedAtBlockNumber: BigInt
+
+}
+

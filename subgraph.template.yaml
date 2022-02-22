@@ -1,0 +1,38 @@
+specVersion: 0.0.2
+description: Olta Editions Auction
+repository: https://github.com/olta-art/olta-editions-auction-subgraph
+schema:
+  file: ./schema.graphql
+dataSources:
+  - kind: ethereum/contract
+    name: EditionsAuction
+    network: {{ network }}
+    source:
+      address: {{auctionAddress}}
+      abi: EditionsAuction
+      startBlock: {{auctionStarBlock}}
+    mapping:
+      kind: ethereum/events
+      apiVersion: 0.0.5
+      language: wasm/assemblyscript
+      entities:
+        - EditionsAuction
+        # - EditionsAuctionPurchase
+      abis:
+        - name: EditionsAuction
+          file: ./abis/EditionsAuction.json
+        # NOTE: may need ERC20 later so leaving this here for now
+        # - name: ERC20
+        #   file: ./abis/ERC20.json
+        # - name: ERC20SymbolBytes
+        #   file: ./abis/ERC20SymbolBytes.json
+        # - name: ERC20NameBytes
+        #   file: ./abis/ERC20NameBytes.json
+       eventHandlers:
+        - event: AuctionCreated(uint256,address,address,uint256,uint256,uint256,uint256,uint8,address,uint256,address)
+          handler: handleAuctionCreated
+        - event: EditionPurchased(uint256,address)
+          handler: handleEditionPurchased
+        - event: AuctionApprovalUpdated(uint256,address,bool)
+          handler: handleAuctionApprovalUpdated
+      file: ./src/editionsAuction.ts
