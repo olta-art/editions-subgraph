@@ -75,31 +75,31 @@ enum PurchaseType {
 }
 
 type Purchase @entity {
-  "<auctionId>-<txHash>-<logIndex>"
+  "<txHash>"
   id: ID!
 
-  "The transaction hash the reserve auction big was created at"
+  "The transaction hash the purchase was made at"
   transactionHash: String!
 
-  "The Reserve auction associated with the Bid"
-  EditionsAuction: EditionsAuction!
+  "The token id purchased"
+  token: Token!
 
-  "The amount of the Bid"
+  "The Editions auction associated with the Purchase"
+  editionsAuction: EditionsAuction!
+
+  "The amount of the Purchase"
   amount: BigInt!
 
-  "The currency of the Purchase"
-  currency: Currency!
-
-  "The bidder of the Bid"
+  "The initiator of the Purchase"
   collector: User!
 
-  "The type of bid (refunded, final)"
+  "The type of purchase (Refunded, Final)"
   purchaseType: PurchaseType!
 
-  "The timestamp of the block the Bid was created in"
+  "The timestamp of the block the Purchase was created in"
   createdAtTimestamp: BigInt!
 
-  "The number of the block the Bid was created in"
+  "The number of the block the Purchase was created in"
   createdAtBlockNumber: BigInt!
 }
 
@@ -156,7 +156,7 @@ type EditionsAuction @entity {
   currentPrice: BigInt
 
   "The previous bids on this auction"
-  previousPurchases: [Purchase!]  @derivedFrom(field: "EditionsAuction")
+  previousPurchases: [Purchase!]  @derivedFrom(field: "editionsAuction")
 
   "The time the auction was approved"
   approvedTimestamp: BigInt

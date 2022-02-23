@@ -1,11 +1,11 @@
 import {
   AuctionCreated,
   AuctionApprovalUpdated,
-  EditionsAuction__auctionsResult
+  EditionPurchased
 } from '../types/EditionsAuction/EditionsAuction'
 
 import {
-  EditionsAuction
+  EditionsAuction, Purchase
 } from '../types/schema'
 
 import {
@@ -56,6 +56,7 @@ export function handleAuctionApprovalUpdated(event: AuctionApprovalUpdated): voi
   log.info(`Starting handler for AuctionApprovalUpdate on auction {}`, [id])
 
   let auction = EditionsAuction.load(id)
+  // TODO: throw error?
   if(auction == null) return
 
   auction.approved = event.params.approved
@@ -67,3 +68,31 @@ export function handleAuctionApprovalUpdated(event: AuctionApprovalUpdated): voi
 
   log.info(`Completed handler for AuctionApprovalUpdate on auction {}`, [id])
 }
+
+export function handleEditionPurchased(event: EditionPurchased): void {
+  const id = event.transaction.hash.toHexString()
+  log.info(`Starting handler for EditionPurchased on auction {}`, [id])
+
+  let auction = EditionsAuction.load(event.params.auctionId.toString())
+  // TODO: throw error?
+  if(auction == null) return
+
+  let currency = auction.auctionCurrency
+
+  const purchase = new Purchase(id)
+
+  purchase.id = id
+  purchase.transactionHash = id
+  purchase.editionsAuction = auction.id
+  purchase.amount = event.params.price
+  purchase.collector = event.params.owner.toHexString()
+  purchase.purchaseType = "Final"
+  purchase.createdAtTimestamp = event.block.timestamp
+  purchase.createdAtBlockNumber = event.block.number
+
+  purchase.save()
+
+  log.info(`Completed handler for EditionPurchased on auction {}`, [id])
+}
+
+// TODO: assign token to purchase by listening to transfer event on same txHash?
