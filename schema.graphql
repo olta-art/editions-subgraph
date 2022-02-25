@@ -1,9 +1,11 @@
-type TokenContractFactory @entity {
+
+# TODO: change to factory for clarity as creator is used for "artists/maker"?
+type TokenContractCreator @entity {
   # TODO: the factory contract for zora NFT editions
   # NOTE: see here https://thegraph.com/docs/en/developer/create-subgraph-hosted/#data-source-templates
   # NOTE: there may be different ones but just olta's for now
   id: ID!
-  tokenContracts: [TokenContract!]
+  tokenContracts: [TokenContract!] @derivedFrom(field: "tokenContractCreator")
 }
 
 type TokenContract @entity {
@@ -12,27 +14,76 @@ type TokenContract @entity {
   # editions, totalToMint, tokenContractFactory ... and so on
 
   "The address of the token contract"
-   id: ID!
+  id: ID!
 
-  "The creator of the Media"
+  "The id given by the tokenConractCreator"
+  tokenContractId: BigInt!
+
+  "The creator of the tokenContract"
   creator: User!
 
+  "The total size of editions"
+  editionSize: BigInt!
+
+  "The contract that created this tokenContract"
+  tokenContractCreator: TokenContractCreator!
+
+  "The imageURL"
+  imageURL: String!
+
+  "The sha-256 hash of the content of imageURL"
+  imageHash: String!
+
+  "The animationURL"
+  animationURL: String!
+
+  "The sha-256 hash of the content of animationURL"
+  animationHash: String!
+
+  "The name of edition token"
+  name: String!
+
+  "The symbol of edition token"
+  symbol: String!
+
+  "The description of edition token"
+  description: String!
+
   "The tokens minted"
-  tokens: [Token!]
+  tokens: [Token!] @derivedFrom(field: "tokenContract")
+
+  "The timestamp of the block the Purchase was created in"
+  createdAtTimestamp: BigInt!
+
+  "The number of the block the Purchase was created in"
+  createdAtBlockNumber: BigInt!
 }
 
 type Token @entity {
   #TODO: add more (see zora's media entitiy) just added these values for now
-  "The tokenId on the Zora Media Contract"
+  "<tokenContractAddress-editionNumber>"
   id: ID!
+
+  "The edition number of the token"
+  editionNumber: BigInt!
+
+  "The token contract the token is derived from"
+  tokenContract: TokenContract!
+
    "The current owner of the Media"
   owner: User!
 
-  "The creator of the Media"
-  creator: User!
-
   "The previous owner of the Zora Media's Market"
   prevOwner: User!
+
+  "The Base64 encoded URI metadata of the token"
+  tokenURI: String!
+
+  "The timestamp of the block the Purchase was created in"
+  createdAtTimestamp: BigInt!
+
+  "The number of the block the Purchase was created in"
+  createdAtBlockNumber: BigInt!
 }
 
 type Currency @entity {
@@ -48,8 +99,9 @@ type Currency @entity {
   "The decimals of the Currency"
   decimals: Int
 
-  "The active Bids denominated in the Currency"
-  previousPurchases: [Purchase!] @derivedFrom(field: "currency")
+  # TODO: find way to dirive previous purchases via currency
+  # "The active Bids denominated in the Currency"
+  # previousPurchases: [Purchase!] @derivedFrom(field: "currency")
 }
 
 type User @entity {

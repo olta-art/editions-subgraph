@@ -32,6 +32,9 @@ Aim: to index all the neccercery smartcontract states for olta's editions and au
   `cd docker`
   `sudo docker-compose up`
 
-- When using hardhat the blockhashes change so I found I needed to delete docker/data if the hardhat node changes
+- When using hardhat the blockhashes change so I found I needed to delete docker/data if the hardhat node is restarted
   `cd docker`
   `sudo rm -r -f data`
+
+NOTE: From address seems to be blank on minting tokens, may to set it in hardhat config to "0x0000000000000000000000000000000000000000"?
+

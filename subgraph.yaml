@@ -36,3 +36,49 @@ dataSources:
         - event: AuctionApprovalUpdated(uint256,address,bool)
           handler: handleAuctionApprovalUpdated
       file: ./src/editionsAuction.ts
+  - kind: ethereum/contract
+    name: SingleEditionMintableCreator
+    network: mainnet
+    source:
+      address: "0x9fE46736679d2D9a65F0992F2272dE9f3c7fa6e0"
+      abi: SingleEditionMintableCreator
+      startBlock: 0
+    mapping:
+      kind: ethereum/events
+      apiVersion: 0.0.5
+      language: wasm/assemblyscript
+      file: ./src/mappings/SingleEditionMintableCreator.ts
+      abis:
+        - name: SingleEditionMintableCreator
+          file: ./abis/SingleEditionMintableCreator.json
+      entities:
+        - TokenContractCreator
+      eventHandlers:
+        - event: CreatedEdition(indexed uint256,indexed address,uint256,address)
+          handler: handleCreatedEdition
+      # TODO: add back in for production
+      # callHandlers:
+      #   - function: createEdition(string,string,string,string,bytes32,string,bytes32,uint256,uint256)
+      #     handler: handleCreateEditionCall
+templates:
+  - name: SingleEditionMintable
+    kind: ethereum/contract
+    network: mainnet
+    source:
+      abi: SingleEditionMintable
+    mapping:
+      kind: ethereum/events
+      apiVersion: 0.0.5
+      language: wasm/assemblyscript
+      entities:
+        - TokenContract
+        - Token
+      abis:
+        - name: SingleEditionMintable
+          file: ./abis/SingleEditionMintable.json
+      eventHandlers:
+        - event: Transfer(indexed address,indexed address,indexed uint256)
+          handler: handleTransfer
+        # TODO: set price sale eth
+        # TODO: other erc-721 events
+      file: ./src/singleEditionMintable.ts

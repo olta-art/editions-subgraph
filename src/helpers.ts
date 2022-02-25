@@ -6,11 +6,10 @@ import {
   EditionsAuction,
   Currency,
   Token,
-  TokenContract,
-  TokenContractFactory
+  TokenContract
 } from '../types/schema'
 
-
+export const zeroAddress = '0x0000000000000000000000000000000000000000'
 /**
  * Find or Create a User entity with `id` and return it
  * @param id
@@ -26,7 +25,29 @@ import {
   return user as User
 }
 
-// TODO: fill out with other params
+export function findOrCreateCurrency(id: string): Currency {
+  let currency = Currency.load(id)
+
+  if(currency == null){
+    currency = new Currency(id)
+    currency.save()
+  }
+
+  return currency as Currency
+}
+
+
+export function findOrCreateToken(id: string): Token {
+  let token = Token.load(id)
+
+  if(token == null){
+    token = new Token(id)
+    token.save()
+  }
+
+  return token as Token
+}
+
 export function findOrCreateTokenContract(id: string): TokenContract {
   let tokenContract = TokenContract.load(id)
 
@@ -38,17 +59,9 @@ export function findOrCreateTokenContract(id: string): TokenContract {
   return tokenContract as TokenContract
 }
 
-// TODO: fill out with other params
-export function findOrCreateCurrency(id: string): Currency {
-  let currency = Currency.load(id)
 
-  if(currency == null){
-    currency = new Currency(id)
-    currency.save()
-  }
 
-  return currency as Currency
-}
+
 
 
 export function createEditionsAuction(
