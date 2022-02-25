@@ -107,16 +107,17 @@ type User @entity {
   "Ethereum Address"
   id: ID!
 
-  "Users that have been granted `ApprovalForAll` Media of the User's Collection"
-  authorizedUsers: [User!]
+  # TODO: index approval events
+  # "Users that have been granted `ApprovalForAll` Media of the User's Collection"
+  # authorizedUsers: [User!]
 
-  # "The Media the User owns"
-  # collection: [Media!]! @derivedFrom(field: "owner")
+  "The Tokens the User owns"
+  collection: [Token!]! @derivedFrom(field: "owner")
 
-  # "The Media the User created"
-  # creations: [Media!]! @derivedFrom(field: "creator")
+  # "The TokenContracts the User created"
+  creations: [TokenContract!]! @derivedFrom(field: "creator")
 
-  "The active Bids made by the User"
+  "The Purchaces made by the User"
   previousPurchases: [Purchase!] @derivedFrom(field: "collector")
 }
 
