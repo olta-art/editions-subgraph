@@ -99,9 +99,8 @@ type Currency @entity {
   "The decimals of the Currency"
   decimals: Int
 
-  # TODO: find way to dirive previous purchases via currency
-  # "The active Bids denominated in the Currency"
-  # previousPurchases: [Purchase!] @derivedFrom(field: "currency")
+  "The purchases made with the Currency"
+  previousPurchases: [Purchase!] @derivedFrom(field: "currency")
 }
 
 type User @entity {
@@ -147,6 +146,9 @@ type Purchase @entity {
 
   "The type of purchase (Refunded, Final)"
   purchaseType: PurchaseType!
+
+  "The Currency the purchase was made in"
+  currency: Currency!
 
   "The timestamp of the block the Purchase was created in"
   createdAtTimestamp: BigInt!

@@ -21,13 +21,12 @@ dataSources:
       abis:
         - name: EditionsAuction
           file: ./abis/EditionsAuction.json
-        # NOTE: may need ERC20 later so leaving this here for now
-        # - name: ERC20
-        #   file: ./abis/ERC20.json
-        # - name: ERC20SymbolBytes
-        #   file: ./abis/ERC20SymbolBytes.json
-        # - name: ERC20NameBytes
-        #   file: ./abis/ERC20NameBytes.json
+        - name: ERC20
+          file: ./abis/ERC20/ERC20.json
+        - name: ERC20SymbolBytes
+          file: ./abis/ERC20/ERC20SymbolBytes.json
+        - name: ERC20NameBytes
+          file: ./abis/ERC20/ERC20NameBytes.json
       eventHandlers:
         - event: AuctionCreated(uint256,address,address,uint256,uint256,uint256,uint256,uint8,address,uint256,address)
           handler: handleEditionsAuctionCreated

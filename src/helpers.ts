@@ -1,5 +1,8 @@
-import { Address, BigInt, Bytes } from '@graphprotocol/graph-ts/index'
-import { store, log } from '@graphprotocol/graph-ts'
+import { Address, BigInt } from '@graphprotocol/graph-ts/index'
+
+import { ERC20 } from '../types/EditionsAuction/ERC20'
+import { ERC20NameBytes } from '../types/EditionsAuction/ERC20NameBytes'
+import { ERC20SymbolBytes } from '../types/EditionsAuction/ERC20SymbolBytes'
 
 import {
   User,
@@ -29,7 +32,7 @@ export function findOrCreateCurrency(id: string): Currency {
   let currency = Currency.load(id)
 
   if(currency == null){
-    currency = new Currency(id)
+    currency = createCurrency(id)
     currency.save()
   }
 
@@ -58,11 +61,6 @@ export function findOrCreateTokenContract(id: string): TokenContract {
 
   return tokenContract as TokenContract
 }
-
-
-
-
-
 
 export function createEditionsAuction(
   id: string,
@@ -103,4 +101,103 @@ export function createEditionsAuction(
   editionsAuction.save()
 
   return editionsAuction
+}
+
+/**
+ * Create a Currency Entity in storage.
+ * Populate fields by fetching data from the blockchain.
+ * @param id
+ */
+ export function createCurrency(id: string): Currency {
+  let currency = new Currency(id)
+  // currency.liquidity = BigInt.fromI32(0)
+
+  if (id === zeroAddress) {
+    currency.name = 'Ethereum'
+    currency.symbol = 'ETH'
+    currency.decimals = 18
+    currency.save()
+    return currency
+  }
+
+  let name = fetchCurrencyName(Address.fromString(id))
+  let symbol = fetchCurrencySymbol(Address.fromString(id))
+  let decimals = fetchCurrencyDecimals(Address.fromString(id))
+
+  currency.name = name
+  currency.symbol = symbol
+  currency.decimals = decimals
+
+  currency.save()
+  return currency
+}
+
+/**
+ * Fetch the `decimals` from the specified ERC20 contract on the blockchain
+ * @param currencyAddress
+ */
+ export function fetchCurrencyDecimals(currencyAddress: Address): i32 {
+  let contract = ERC20.bind(currencyAddress)
+  // try types uint8 for decimals
+  let decimalValue = null
+  let decimalResult = contract.try_decimals()
+  if (!decimalResult.reverted) {
+    decimalValue = decimalResult.value
+  }
+  return decimalValue as i32
+}
+
+/**
+ * Fetch the `symbol` from the specified ERC20 contract on the Blockchain
+ * @param currencyAddress
+ */
+export function fetchCurrencySymbol(currencyAddress: Address): string {
+  let contract = ERC20.bind(currencyAddress)
+  let contractSymbolBytes = ERC20SymbolBytes.bind(currencyAddress)
+
+  // try types string and bytes32 for symbol
+  let symbolValue = 'unknown'
+  let symbolResult = contract.try_symbol()
+  if (symbolResult.reverted) {
+    let symbolResultBytes = contractSymbolBytes.try_symbol()
+    if (!symbolResultBytes.reverted) {
+      // for broken pairs that have no symbol function exposed
+      if (!isNullEthValue(symbolResultBytes.value.toHexString())) {
+        symbolValue = symbolResultBytes.value.toString()
+      }
+    }
+  } else {
+    symbolValue = symbolResult.value
+  }
+
+  return symbolValue
+}
+
+/**
+ * Fetch the `name` of the specified ERC20 contract on the blockchain
+ * @param currencyAddress
+ */
+export function fetchCurrencyName(currencyAddress: Address): string {
+  let contract = ERC20.bind(currencyAddress)
+  let contractNameBytes = ERC20NameBytes.bind(currencyAddress)
+
+  // try types string and bytes32 for name
+  let nameValue = 'unknown'
+  let nameResult = contract.try_name()
+  if (nameResult.reverted) {
+    let nameResultBytes = contractNameBytes.try_name()
+    if (!nameResultBytes.reverted) {
+      if (!isNullEthValue(nameResultBytes.value.toHexString())) {
+        nameValue = nameResultBytes.value.toString()
+      }
+    }
+  } else {
+    nameValue = nameResult.value
+  }
+
+  return nameValue
+}
+
+function isNullEthValue(value: string): boolean {
+  return value == '0x0000000000000000000000000000000000000000000000000000000000000001'
 }

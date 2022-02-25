@@ -77,8 +77,6 @@ export function handleEditionPurchased(event: EditionPurchased): void {
   // TODO: throw error?
   if(auction == null) return
 
-  let currency = auction.auctionCurrency
-
   const purchase = new Purchase(id)
 
   purchase.id = id
@@ -89,6 +87,7 @@ export function handleEditionPurchased(event: EditionPurchased): void {
   purchase.purchaseType = "Final"
   purchase.createdAtTimestamp = event.block.timestamp
   purchase.createdAtBlockNumber = event.block.number
+  purchase.currency = auction.auctionCurrency
 
   purchase.save()
 
