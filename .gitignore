@@ -72,3 +72,6 @@ bin/
 .env.local
 .env.dev
 .env.prod
+
+deployments/localhost
+cache

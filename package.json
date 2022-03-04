@@ -7,10 +7,18 @@
     "prepare:local": "mustache config/50.json subgraph.template.yaml > subgraph.yaml",
     "create-local": "graph create olta-art/edtions-auction-subgraph --node http://127.0.0.1:8020",
     "codegen": "graph codegen --output-dir types",
-    "deploy-local": "graph deploy olta-art/edtions-auction-subgraph --ipfs http://localhost:5001 --node http://127.0.0.1:8020"
+    "deploy-local": "graph deploy olta-art/edtions-auction-subgraph --ipfs http://localhost:5001 --node http://127.0.0.1:8020",
+    "start-local-network": "hardhat node --hostname 0.0.0.0"
   },
   "devDependencies": {
     "@graphprotocol/graph-ts": "^0.24.1",
+    "dotenv": "^16.0.0",
+    "hardhat": "^2.9.0",
+    "hardhat-deploy": "^0.10.5",
     "mustache": "^4.2.0"
+  },
+  "dependencies": {
+    "ts-node": "^10.6.0",
+    "typescript": "^4.6.2"
   }
 }
