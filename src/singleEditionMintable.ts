@@ -50,6 +50,7 @@ function handleMint(event: Transfer): void {
   token.tokenContract = context.getString('tokenContract')
   token.owner = findOrCreateUser(event.params.to.toHexString()).id
   token.prevOwner = zeroAddress
+  token.createdAtTransactionHash = event.transaction.hash.toHexString()
   token.createdAtTimestamp = event.block.timestamp
   token.createdAtBlockNumber = event.block.number
 

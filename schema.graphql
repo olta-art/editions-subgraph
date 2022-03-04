@@ -79,6 +79,9 @@ type Token @entity {
   "The Base64 encoded URI metadata of the token"
   tokenURI: String!
 
+  "The transaction hash the token was minted"
+  createdAtTransactionHash: String!
+
   "The timestamp of the block the Purchase was created in"
   createdAtTimestamp: BigInt!
 
@@ -133,7 +136,7 @@ type Purchase @entity {
   "The transaction hash the purchase was made at"
   transactionHash: String!
 
-  "The token id purchased"
+  "The token purchased"
   token: Token!
 
   "The Editions auction associated with the Purchase"
@@ -206,9 +209,6 @@ type EditionsAuction @entity {
   auctionCurrency: Currency!
 
   status: EditionsAuctionStatus!
-
-  "The current bid on this auction"
-  currentPrice: BigInt
 
   "The previous bids on this auction"
   previousPurchases: [Purchase!]  @derivedFrom(field: "editionsAuction")

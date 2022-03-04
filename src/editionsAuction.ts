@@ -77,7 +77,7 @@ export function handleEditionPurchased(event: EditionPurchased): void {
   // TODO: throw error?
   if(auction == null) return
 
-  const purchase = new Purchase(id)
+  let purchase = new Purchase(id)
 
   purchase.id = id
   purchase.transactionHash = id
@@ -88,6 +88,10 @@ export function handleEditionPurchased(event: EditionPurchased): void {
   purchase.createdAtTimestamp = event.block.timestamp
   purchase.createdAtBlockNumber = event.block.number
   purchase.currency = auction.auctionCurrency
+
+  // TODO: find token via its tx hash - if the same add to purchase
+  // possible solution is to create a tx entity? or find a way to dirive in the schema
+  // purchase.token = findTokenByTxHash
 
   purchase.save()
 
