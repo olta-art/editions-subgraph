@@ -8,7 +8,8 @@
     "create-local": "graph create olta-art/edtions-auction-subgraph --node http://127.0.0.1:8020",
     "codegen": "graph codegen --output-dir types",
     "deploy-local": "graph deploy olta-art/edtions-auction-subgraph --ipfs http://localhost:5001 --node http://127.0.0.1:8020",
-    "start-local-network": "hardhat node --hostname 0.0.0.0"
+    "start-local-node": "hardhat node --hostname 0.0.0.0",
+    "seed-local-node": "hardhat run --network localhost scripts/seed.ts"
   },
   "devDependencies": {
     "@graphprotocol/graph-ts": "^0.24.1",
