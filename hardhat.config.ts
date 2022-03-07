@@ -1,5 +1,5 @@
-// import "@nomiclabs/hardhat-waffle";
-// import "@typechain/hardhat";
+import "@typechain/hardhat"
+import "@nomiclabs/hardhat-ethers"
 // import "hardhat-gas-reporter";
 import "hardhat-deploy";
 // import "@nomiclabs/hardhat-etherscan";

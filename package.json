@@ -12,10 +12,15 @@
   },
   "devDependencies": {
     "@graphprotocol/graph-ts": "^0.24.1",
+    "@nomiclabs/hardhat-ethers": "^2.0.5",
+    "@typechain/ethers-v5": "^9.0.0",
+    "@typechain/hardhat": "^4.0.0",
     "dotenv": "^16.0.0",
+    "ethers": "^5.5.4",
     "hardhat": "^2.9.0",
     "hardhat-deploy": "^0.10.5",
-    "mustache": "^4.2.0"
+    "mustache": "^4.2.0",
+    "typechain": "^7.0.0"
   },
   "dependencies": {
     "ts-node": "^10.6.0",
