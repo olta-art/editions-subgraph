@@ -73,5 +73,6 @@ bin/
 .env.dev
 .env.prod
 
+typechain
 deployments/localhost
 cache

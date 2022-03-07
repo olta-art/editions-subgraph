@@ -5,7 +5,7 @@ import "hardhat-deploy";
 // import "@nomiclabs/hardhat-etherscan";
 import { HardhatUserConfig } from "hardhat/config";
 // import networks from './networks';
-import dotenv from 'dotenv';
+import * as dotenv from 'dotenv';
 dotenv.config();
 
 /**
@@ -26,6 +26,15 @@ const config: HardhatUserConfig = {
         runs: 100,
       },
     },
+  },
+  typechain: {
+    outDir: 'typechain',
+    target: 'ethers-v5',
+    alwaysGenerateOverloads: false, // should overloads with full signatures like deposit(uint256) be generated always, even if there are no overloads?
+    externalArtifacts: [
+      process.env.PATH_TO_EDITIONS_AUCTION + "artifacts/contracts/**.sol/!(*.dbg.json)", // ignore ".dbs.json"
+      process.env.PATH_TO_NFT_EDITIONS + "artifacts/contracts/**.sol/!(*.dbg.json)" // ignore ".dbs.json"
+    ]
   },
   external: {
     contracts: [
