@@ -82,7 +82,7 @@ const createEdition = async (signer: SignerWithAddress, SingleEditonCreator: Sin
     10,
     10
   );
-  const [id] = await getEventArguments(transaction, "CreatedEdition")
+  const [id, creator, editionSize, editionContractAddress] = await getEventArguments(transaction, "CreatedEdition")
   const editionResult = await SingleEditonCreator.getEditionAtId(id)
   const SingleEditionContract = (await ethers.getContractAt(
     SingleEditionMintable__factory.abi,
@@ -131,8 +131,8 @@ const purchaseEdition = async (
   EditionsAuction: EditionsAuction,
   auctionId: number
 ) => {
-  const salePrice = await EditionsAuction.getSalePrice(0)
-  return await EditionsAuction.connect(signer).purchase(0, salePrice)
+  const salePrice = await EditionsAuction.getSalePrice(auctionId)
+  return await EditionsAuction.connect(signer).purchase(auctionId, salePrice)
 }
 
 const addVersion = async (
@@ -161,15 +161,15 @@ const run = async () => {
   const {EditionsAuction, SingleEditonCreator, WETH} = await getDeployedContracts()
   const SingleEditionMintable = await createEdition(creator, SingleEditonCreator)
 
-
   let tx = await createAuction(
     creator,
     SingleEditionMintable,
     EditionsAuction,
     WETH
   )
-  console.log("1/5 auction created", tx.hash)
-  await tx.wait()
+
+  const [auctionId] = await getEventArguments(tx, "AuctionCreated")
+  console.log(`1/5 auction ${auctionId} created`, tx.hash)
 
   // approve auction for minting
   tx = await SingleEditionMintable.connect(creator).setApprovedMinter(EditionsAuction.address, true)
@@ -188,7 +188,7 @@ const run = async () => {
   // wait 2 sec for auction to start
   setTimeout(async () => {
     // purchase nft
-    tx = await purchaseEdition(collector, EditionsAuction, 0)
+    tx = await purchaseEdition(collector, EditionsAuction, auctionId)
     await tx.wait()
     console.log("5/5 collectors purchases NFT", tx.hash)
   }, 2000);
