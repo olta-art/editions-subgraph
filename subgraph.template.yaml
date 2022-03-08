@@ -1,6 +1,6 @@
 specVersion: 0.0.2
-description: Olta Editions Auction
-repository: https://github.com/olta-art/olta-editions-auction-subgraph
+description: Olta Editions Subgraph
+repository: olta-art/editions-subgraph
 schema:
   file: ./schema.graphql
 dataSources:
@@ -8,31 +8,76 @@ dataSources:
     name: EditionsAuction
     network: {{ network }}
     source:
-      address: {{auctionAddress}}
+      address: "{{ EditionsAuctionAddress }}"
       abi: EditionsAuction
-      startBlock: {{auctionStarBlock}}
+      startBlock: {{ startBlock }}
     mapping:
       kind: ethereum/events
       apiVersion: 0.0.5
       language: wasm/assemblyscript
       entities:
         - EditionsAuction
-        # - EditionsAuctionPurchase
+        - Purchase
       abis:
         - name: EditionsAuction
-          file: ./abis/EditionsAuction.json
-        # NOTE: may need ERC20 later so leaving this here for now
-        # - name: ERC20
-        #   file: ./abis/ERC20.json
-        # - name: ERC20SymbolBytes
-        #   file: ./abis/ERC20SymbolBytes.json
-        # - name: ERC20NameBytes
-        #   file: ./abis/ERC20NameBytes.json
-       eventHandlers:
+          file: ./deployments/localhost/EditionsAuction.json
+        - name: ERC20
+          file: ./abis/ERC20/ERC20.json
+        - name: ERC20SymbolBytes
+          file: ./abis/ERC20/ERC20SymbolBytes.json
+        - name: ERC20NameBytes
+          file: ./abis/ERC20/ERC20NameBytes.json
+      eventHandlers:
         - event: AuctionCreated(uint256,address,address,uint256,uint256,uint256,uint256,uint8,address,uint256,address)
-          handler: handleAuctionCreated
-        - event: EditionPurchased(uint256,address)
+          handler: handleEditionsAuctionCreated
+        - event: EditionPurchased(uint256,address,uint256,address)
           handler: handleEditionPurchased
         - event: AuctionApprovalUpdated(uint256,address,bool)
           handler: handleAuctionApprovalUpdated
       file: ./src/editionsAuction.ts
+  - kind: ethereum/contract
+    name: SingleEditionMintableCreator
+    network: {{ network }}
+    source:
+      address: "{{ SingleEditionMintableCreatorAddress }}"
+      abi: SingleEditionMintableCreator
+      startBlock: {{ startBlock }}
+    mapping:
+      kind: ethereum/events
+      apiVersion: 0.0.5
+      language: wasm/assemblyscript
+      file: ./src/mappings/SingleEditionMintableCreator.ts
+      abis:
+        - name: SingleEditionMintableCreator
+          file: ./deployments/localhost/SingleEditionMintableCreator.json
+      entities:
+        - TokenContractCreator
+      eventHandlers:
+        - event: CreatedEdition(indexed uint256,indexed address,uint256,address)
+          handler: handleCreatedEdition
+      # TODO: add back in for production
+      # callHandlers:
+      #   - function: createEdition(string,string,string,string,bytes32,string,bytes32,uint256,uint256)
+      #     handler: handleCreateEditionCall
+templates:
+  - name: SingleEditionMintable
+    kind: ethereum/contract
+    network: mainnet
+    source:
+      abi: SingleEditionMintable
+    mapping:
+      kind: ethereum/events
+      apiVersion: 0.0.5
+      language: wasm/assemblyscript
+      entities:
+        - TokenContract
+        - Token
+      abis:
+        - name: SingleEditionMintable
+          file: ./deployments/localhost/SingleEditionMintable.json
+      eventHandlers:
+        - event: Transfer(indexed address,indexed address,indexed uint256)
+          handler: handleTransfer
+        # TODO: set price sale eth
+        # TODO: other erc-721 events
+      file: ./src/singleEditionMintable.ts

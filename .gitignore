@@ -73,6 +73,8 @@ bin/
 .env.dev
 .env.prod
 
+# Generated
 typechain
 deployments/localhost
 cache
+/subgraph.yaml
