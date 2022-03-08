@@ -47,6 +47,11 @@ const getDeployedContracts = async () => {
   }
 }
 
+enum urlKeys {
+  animation,
+  image
+}
+
 
 const defaultVersion = () => {
   return {
@@ -126,33 +131,10 @@ const createAuction = async (
   )
 }
 
-const purchaseEdition = async (
-  signer: SignerWithAddress,
-  EditionsAuction: EditionsAuction,
-  auctionId: number
-) => {
-  const salePrice = await EditionsAuction.getSalePrice(auctionId)
-  return await EditionsAuction.connect(signer).purchase(auctionId, salePrice)
-}
-
-const addVersion = async (
-  signer: SignerWithAddress,
-  nft: SingleEditionMintable,
-  label: [BigNumberish, BigNumberish, BigNumberish]
-) => {
-  const newVersion = {
-    urls: [
-        {
-          url: "https://arweave.net/fnfNerUHj64h-J2yU9d-rZ6ZBAQRhrWfkw_fgiKyl2k",
-          sha256hash: "0x0000000000000000000000000000000000000000000000000000000000000001"
-        },
-        {
-          url: "",
-          sha256hash: "0x0000000000000000000000000000000000000000000000000000000000000000",
-        }
-      ],
-      label
-  }
+const delay = (t: number) => {
+  return new Promise(resolve => {
+      setTimeout(() => resolve(true), t)
+  })
 }
 
 const run = async () => {
@@ -169,29 +151,59 @@ const run = async () => {
   )
 
   const [auctionId] = await getEventArguments(tx, "AuctionCreated")
-  console.log(`1/5 auction ${auctionId} created`, tx.hash)
+  console.log(`1/7 creator created auction:${auctionId}`, tx.hash)
 
   // approve auction for minting
   tx = await SingleEditionMintable.connect(creator).setApprovedMinter(EditionsAuction.address, true)
-  console.log("2/5 creator approved editionsAuction to mint", tx.hash)
+  console.log("2/7 creator approved editionsAuction to mint", tx.hash)
   tx.wait()
 
   // give collector some WETH to play with
   tx = await WETH.connect(collector).deposit({ value: ethers.utils.parseEther("40.0") });
   await tx.wait()
-  console.log("3/5 collector has WETH", tx.hash)
+  console.log("3/7 collector has WETH", tx.hash)
 
   tx = await WETH.connect(collector).approve(EditionsAuction.address, ethers.utils.parseEther("40.0"))
   await tx.wait()
-  console.log("4/5 collectors WETH approved to be spent", tx.hash)
+  console.log("4/7 collector approved WETH to be spent", tx.hash)
 
   // wait 2 sec for auction to start
-  setTimeout(async () => {
-    // purchase nft
-    tx = await purchaseEdition(collector, EditionsAuction, auctionId)
-    await tx.wait()
-    console.log("5/5 collectors purchases NFT", tx.hash)
-  }, 2000);
+  await delay(2000)
+
+  // purchase nft
+  const salePrice = await EditionsAuction.getSalePrice(auctionId)
+  tx = await EditionsAuction.connect(collector).purchase(auctionId, salePrice)
+  await tx.wait()
+  console.log("5/7 collector purchased NFT", tx.hash)
+
+  // add version
+  await SingleEditionMintable.connect(creator).addVersion(
+    {
+    urls: [
+      // animation
+      {
+        url: "https://arweave.net/some-random-id",
+        sha256hash: "0x1000000000000000000000000000000000000000000000000000000000000000"
+      },
+      // image
+      {
+        url: "",
+        sha256hash: "0x0000000000000000000000000000000000000000000000000000000000000000",
+      }
+    ],
+    label: [0,0,2] as Label
+  })
+  await tx.wait()
+  console.log("6/7 creator added version to NFT", tx.hash)
+
+  // update version url
+  await SingleEditionMintable.connect(creator).updateVersionURL(
+    [0,0,2] as Label,
+    urlKeys.animation,
+    "https://arweave.net/fnfNerUHj64h-J2yU9d-rZ6ZBAQRhrWfkw_fgiKyl2k"
+  )
+  await tx.wait()
+  console.log("7/7 creator updated version url", tx.hash)
 }
 
 run();
