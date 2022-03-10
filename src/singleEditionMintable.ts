@@ -1,6 +1,8 @@
 import {
   Transfer,
-  SingleEditionMintable as SingleEditionMintableContract
+  SingleEditionMintable as SingleEditionMintableContract,
+  VersionAdded,
+  VersionURLUpdated
 } from '../types/templates/SingleEditionMintable/SingleEditionMintable'
 
 import {
@@ -10,11 +12,13 @@ import {
 import {
   findOrCreateToken,
   findOrCreateTokenContract,
+  findOrCreateUrlHashPair,
   findOrCreateUser,
+  findOrCreateVersion,
   zeroAddress
 } from './helpers'
 
-import { log, dataSource, Address } from '@graphprotocol/graph-ts'
+import { log, dataSource, Address, BigInt } from '@graphprotocol/graph-ts'
 
 // TODO: updateEditionURLsCall -> or update smart contract to emit event
 
@@ -69,14 +73,98 @@ function handleMint(event: Transfer): void {
     event.transaction.hash.toHexString()
   )
 
-  // HACK: updates if no urls are indexed on tokenContract
-  // NOTE: see SingleEditionMintableCreator for call method that does simular 
-  addTokenURIsToTokenContract(
-    context.getString('tokenContract'),
-    singleEditionMintableContract
+  log.info(`Completed handler for Mint for token {}`, [id])
+}
+
+export function handleVersionAdded(event: VersionAdded): void {
+  let context = dataSource.context()
+  let tokenContractAddress = context.getString('tokenContract')
+
+  let id = `${context.getString('tokenContract')}-${formatLabel(event.params.label)}`
+  log.info(`Starting handler for VersionAdded for token {}`, [id])
+
+  let version = findOrCreateVersion(id)
+
+  version.id = id
+  // version.label = formatLabel(event.params.label)
+  version.tokenContract = tokenContractAddress
+  version.createdAtBlockNumber = event.block.number
+  version.createdAtTimestamp = event.block.timestamp
+
+  version.save()
+
+  // call getURIs of version to fetch uris for specifc for label
+  const singleEditionMintableContract = SingleEditionMintableContract.bind(
+    Address.fromString(context.getString('tokenContract'))
   )
 
-  log.info(`Completed handler for Mint for token {}`, [id])
+  log.info("GEORGE BIZ {}", [i32ToString(event.params.label.at(2))])
+
+  // NOTE(george): running into a type mismatch error on local graph node with the following
+  // const callResult = singleEditionMintableContract.try_getURIsOfVersion(event.params.label)
+
+  // HACK(george): my solution for now is to call getURIs as it will retrieve latest added
+  // it is unlikley versions to be updated in quick succsession.
+  const callResult = singleEditionMintableContract.try_getURIs()
+  if(callResult.reverted){
+    log.info("getURIs Reverted", [])
+    // TODO: need to add urlHashes
+    return
+  }
+  const URIs = callResult.value
+
+  // create urlHash pair for image
+  let imageUrlHash = findOrCreateUrlHashPair(`${id}-image`)
+  imageUrlHash.id = `${id}-image`
+  imageUrlHash.url = URIs.value0
+  imageUrlHash.hash = URIs.value1.toHexString()
+  imageUrlHash.type = "image"
+  imageUrlHash.version = id
+  imageUrlHash.lastUpdatedTimestamp = event.block.timestamp
+  imageUrlHash.lastUpdatedBlockNumber = event.block.number
+
+  imageUrlHash.save()
+
+  // create urlHash pair for animation
+  let animationUrlHash = findOrCreateUrlHashPair(`${id}-animation`)
+  animationUrlHash.id = `${id}-animation`
+  animationUrlHash.url = URIs.value0
+  animationUrlHash.hash = URIs.value1.toHexString()
+  animationUrlHash.type = "animation"
+  animationUrlHash.version = id
+  animationUrlHash.lastUpdatedTimestamp = event.block.timestamp
+  animationUrlHash.lastUpdatedBlockNumber = event.block.number
+
+  animationUrlHash.save()
+
+  log.info(`Completed: handler for VersionAdded for token {}`, [id])
+}
+
+const urlTypes = [
+  "image",
+  "animation"
+]
+
+export function handleVersionURLUpdated(event: VersionURLUpdated): void{
+  let context = dataSource.context()
+  // find url hash pair
+  let urlType = urlTypes[event.params.index]
+  let id = `${context.getString('tokenContract')}-${formatLabel(event.params.label)}-${urlType}`
+  let urlHashPair = findOrCreateUrlHashPair(id)
+
+  // update url
+  urlHashPair.url = event.params.url
+  urlHashPair.lastUpdatedTimestamp = event.block.timestamp
+  urlHashPair.lastUpdatedBlockNumber = event.block.number
+  urlHashPair.save()
+}
+
+function i32ToString (value: i32): string {
+  return BigInt.fromI32(value).toString()
+}
+// formats label to semantic versioning style
+function formatLabel (label: i32[]): string {
+  return `${i32ToString(label.at(0))}.${i32ToString(label.at(1))}.${i32ToString(label.at(2))}`
 }
 
 function addTokenToPurchase(tokenId: string,txHash: string): void {
@@ -89,22 +177,3 @@ function addTokenToPurchase(tokenId: string,txHash: string): void {
   }
 }
 
-function addTokenURIsToTokenContract(tokenContractId: string, singleEditionMintableContract: SingleEditionMintableContract): void {
-  let tokenContract = findOrCreateTokenContract(tokenContractId)
-  if(!tokenContract.animationURL && !tokenContract.imageURL){
-    log.info(`Starting: add tokenURIs to TokenContract`, [tokenContractId])
-
-    // call getURIs from tokenContract
-    let tokenURIs = singleEditionMintableContract.getURIs()
-
-    // update tokenContract
-    tokenContract.imageURL = tokenURIs.value0
-    tokenContract.imageHash = tokenURIs.value1.toHexString()
-    tokenContract.animationURL = tokenURIs.value2
-    tokenContract.animationHash = tokenURIs.value3.toHexString()
-
-    tokenContract.save()
-
-    log.info(`Completed: add tokenURIs to TokenContract`, [tokenContractId])
-  }
-}

@@ -28,6 +28,8 @@ type TokenContract @entity {
   "The contract that created this tokenContract"
   tokenContractCreator: TokenContractCreator!
 
+  # TODO: decide if it's better to give specfic urls or version
+
   "The imageURL"
   imageURL: String!
 
@@ -40,6 +42,15 @@ type TokenContract @entity {
   "The sha-256 hash of the content of animationURL"
   animationHash: String!
 
+  "The latest version by label"
+  latestVersion: Version!
+
+  "The last version added"
+  lastAddedVersion: Version!
+
+  "The history of urls and hashes"
+  versions: [Version!] @derivedFrom(field: "tokenContract")
+
   "The name of edition token"
   name: String!
 
@@ -51,6 +62,55 @@ type TokenContract @entity {
 
   "The tokens minted"
   tokens: [Token!] @derivedFrom(field: "tokenContract")
+
+  "The timestamp of the block the Purchase was created in"
+  createdAtTimestamp: BigInt!
+
+  "The number of the block the Purchase was created in"
+  createdAtBlockNumber: BigInt!
+}
+
+enum urlType {
+  image,
+  animation
+}
+
+type UrlHashPair @entity{
+  "<versionID-type>"
+  id: ID!
+
+  "The url"
+  url: String!
+
+  "The sha-256 hash of the content on the url"
+  hash: String!
+
+  "The type of url"
+  type: urlType!
+
+  "The Version for "
+  version: Version!
+
+  "The timestamp of the last time the url was updated"
+  lastUpdatedTimestamp: BigInt!
+
+  "The number of the block the last time the url was updated"
+  lastUpdatedBlockNumber: BigInt!
+}
+
+type Version @entity {
+  "<tokenAddress-versionIndex>"
+  id: ID!
+
+  "The token the version is for"
+  tokenContract: TokenContract!
+
+  "The semantic label of the version"
+  label: String!
+
+  "The url and hash pairs"
+  # TODO: would it be better to just have animation / image urls
+  urls: [UrlHashPair!]! @derivedFrom(field: "version")
 
   "The timestamp of the block the Purchase was created in"
   createdAtTimestamp: BigInt!
@@ -73,7 +133,7 @@ type Token @entity {
    "The current owner of the Media"
   owner: User!
 
-  "The previous owner of the Zora Media's Market"
+  "The previous owner of the token"
   prevOwner: User!
 
   "The Base64 encoded URI metadata of the token"

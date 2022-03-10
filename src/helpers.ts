@@ -9,7 +9,9 @@ import {
   EditionsAuction,
   Currency,
   Token,
-  TokenContract
+  TokenContract,
+  Version,
+  UrlHashPair
 } from '../types/schema'
 
 export const zeroAddress = '0x0000000000000000000000000000000000000000'
@@ -49,6 +51,28 @@ export function findOrCreateToken(id: string): Token {
   }
 
   return token as Token
+}
+
+export function findOrCreateVersion(id: string): Version {
+  let version = Version.load(id)
+
+  if(version == null){
+    version = new Version(id)
+    version.save()
+  }
+
+  return version as Version
+}
+
+export function findOrCreateUrlHashPair(id: string): UrlHashPair {
+  let urlHashPair = UrlHashPair.load(id)
+
+  if(urlHashPair == null){
+    urlHashPair = new UrlHashPair(id)
+    urlHashPair.save()
+  }
+
+  return urlHashPair as UrlHashPair
 }
 
 export function findOrCreateTokenContract(id: string): TokenContract {
