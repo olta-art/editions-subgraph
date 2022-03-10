@@ -72,12 +72,18 @@ templates:
       entities:
         - TokenContract
         - Token
+        - Version
+        - UrlHashPair
       abis:
         - name: SingleEditionMintable
           file: ./deployments/localhost/SingleEditionMintable.json
       eventHandlers:
         - event: Transfer(indexed address,indexed address,indexed uint256)
           handler: handleTransfer
+        - event: VersionAdded(uint8[3])
+          handler: handleVersionAdded
+        - event: VersionURLUpdated(uint8[3],uint8,string)
+          handler: handleVersionURLUpdated
         # TODO: set price sale eth
         # TODO: other erc-721 events
       file: ./src/singleEditionMintable.ts
