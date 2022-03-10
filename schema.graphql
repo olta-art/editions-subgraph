@@ -1,18 +1,12 @@
-
-# TODO: change to factory for clarity as creator is used for "artists/maker"?
 type TokenContractCreator @entity {
-  # TODO: the factory contract for zora NFT editions
-  # NOTE: see here https://thegraph.com/docs/en/developer/create-subgraph-hosted/#data-source-templates
-  # NOTE: there may be different ones but just olta's for now
+  "The address of the token contract creator"
   id: ID!
+
+  "THe token contracts created from the tokenContractCreator"
   tokenContracts: [TokenContract!] @derivedFrom(field: "tokenContractCreator")
 }
 
 type TokenContract @entity {
-  # TODO: zora NFT edtitions - maybe one already exists?
-  # NOTE: just id and creator for now while testing
-  # editions, totalToMint, tokenContractFactory ... and so on
-
   "The address of the token contract"
   id: ID!
 
@@ -91,6 +85,8 @@ type UrlHashPair @entity{
   "The Version for "
   version: Version!
 
+  # TODO: add URIupdate entity to better keep track of these
+
   "The timestamp of the last time the url was updated"
   lastUpdatedTimestamp: BigInt!
 
@@ -120,7 +116,6 @@ type Version @entity {
 }
 
 type Token @entity {
-  #TODO: add more (see zora's media entitiy) just added these values for now
   "<tokenContractAddress-editionNumber>"
   id: ID!
 
@@ -147,6 +142,8 @@ type Token @entity {
 
   "The number of the block the Purchase was created in"
   createdAtBlockNumber: BigInt!
+
+  # TODO: token royalties, burn, tranfers(sold for) auctions?
 }
 
 type Currency @entity {
