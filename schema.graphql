@@ -72,13 +72,43 @@ type UrlHashPair @entity{
   "The Version for "
   version: Version!
 
-  # TODO: add URIupdate entity to better keep track of these
+  "The Url Updates"
+  urlUpdates: [UrlUpdate!]! @derivedFrom(field: "urlHashPair")
 
-  "The timestamp of the last time the url was updated"
-  lastUpdatedTimestamp: BigInt!
+  "The timestamp of the block the URIUpdate was created in"
+  createdAtTimestamp: BigInt!
 
-  "The number of the block the last time the url was updated"
-  lastUpdatedBlockNumber: BigInt!
+  "The number of the block the URIUpdate was created in"
+  createdAtBlockNumber: BigInt!
+}
+
+type UrlUpdate @entity{
+  "<transactionHash>-<logIndex>"
+  id: ID!
+
+  "The transaction has the url update happened at"
+  transactionHash: String!
+
+  "The previous url"
+  from: String!
+
+  "The previous url"
+  to: String!
+
+  "The Token associated with the UrlUpdate"
+  tokenContract: TokenContract!
+
+  "The Version associated with the UrlUpdate"
+  version: Version!
+
+  "The UrlHashPair associated with the UrlUpdate"
+  urlHashPair: UrlHashPair!
+
+  "The timestamp of the block the URIUpdate was created in"
+  createdAtTimestamp: BigInt!
+
+  "The number of the block the URIUpdate was created in"
+  createdAtBlockNumber: BigInt!
 }
 
 type Version @entity {

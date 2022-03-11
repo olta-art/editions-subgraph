@@ -7,12 +7,13 @@ import {
 } from '../types/templates/SingleEditionMintable/SingleEditionMintable'
 
 import {
-  Purchase, UrlHashPair
+  Purchase, UrlHashPair, UrlUpdate
 } from '../types/schema'
 
 import {
   findOrCreateToken,
   findOrCreateUrlHashPair,
+  findOrCreateUrlUpdate,
   findOrCreateUser,
   findOrCreateVersion,
   zeroAddress
@@ -141,8 +142,8 @@ function addUrlHashPair(
   urlHashPair.id = `${versionId}-${type}`
   urlHashPair.version = versionId
   urlHashPair.type = type
-  urlHashPair.lastUpdatedTimestamp = event.block.timestamp
-  urlHashPair.lastUpdatedBlockNumber = event.block.number
+  urlHashPair.createdAtTimestamp = event.block.timestamp
+  urlHashPair.createdAtBlockNumber = event.block.number
 
   if(type === "image"){
     urlHashPair.url = getURIsResult.value0
@@ -166,15 +167,30 @@ const urlTypes = [
 
 export function handleVersionURLUpdated(event: VersionURLUpdated): void{
   let context = dataSource.context()
-  // find url hash pair
+
+  // get urlHashPair
   let urlType = urlTypes[event.params.index]
   let id = `${context.getString('tokenContract')}-${formatLabel(event.params.label)}-${urlType}`
   let urlHashPair = findOrCreateUrlHashPair(id)
 
-  // update url
+  // create urlUpdate
+  let urlUpdateId = `${event.transaction.hash.toHexString()}-${event.logIndex}`
+  let urlUpdate = findOrCreateUrlUpdate(urlUpdateId)
+
+  urlUpdate.id = urlUpdateId
+  urlUpdate.transactionHash = event.transaction.hash.toHexString()
+  urlUpdate.from = urlHashPair.url
+  urlUpdate.to = event.params.url
+  urlUpdate.tokenContract = context.getString('tokenContract')
+  urlUpdate.version = `${context.getString('tokenContract')}-${formatLabel(event.params.label)}`
+  urlUpdate.urlHashPair = urlHashPair.id
+  urlUpdate.createdAtTimestamp = event.block.timestamp
+  urlUpdate.createdAtBlockNumber = event.block.number
+
+  urlUpdate.save()
+
+  // update url on urlHashPair
   urlHashPair.url = event.params.url
-  urlHashPair.lastUpdatedTimestamp = event.block.timestamp
-  urlHashPair.lastUpdatedBlockNumber = event.block.number
   urlHashPair.save()
 }
 

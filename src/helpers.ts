@@ -11,7 +11,8 @@ import {
   Token,
   TokenContract,
   Version,
-  UrlHashPair
+  UrlHashPair,
+  UrlUpdate
 } from '../types/schema'
 
 export const zeroAddress = '0x0000000000000000000000000000000000000000'
@@ -73,6 +74,17 @@ export function findOrCreateUrlHashPair(id: string): UrlHashPair {
   }
 
   return urlHashPair as UrlHashPair
+}
+
+export function findOrCreateUrlUpdate(id: string): UrlUpdate {
+  let urlUpdate = UrlUpdate.load(id)
+
+  if(urlUpdate == null){
+    urlUpdate = new UrlUpdate(id)
+    urlUpdate.save()
+  }
+
+  return urlUpdate as UrlUpdate
 }
 
 export function findOrCreateTokenContract(id: string): TokenContract {
