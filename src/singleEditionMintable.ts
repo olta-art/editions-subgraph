@@ -2,16 +2,16 @@ import {
   Transfer,
   SingleEditionMintable as SingleEditionMintableContract,
   VersionAdded,
-  VersionURLUpdated
+  VersionURLUpdated,
+  SingleEditionMintable__getURIsResult,
 } from '../types/templates/SingleEditionMintable/SingleEditionMintable'
 
 import {
-  Purchase,
+  Purchase, UrlHashPair
 } from '../types/schema'
 
 import {
   findOrCreateToken,
-  findOrCreateTokenContract,
   findOrCreateUrlHashPair,
   findOrCreateUser,
   findOrCreateVersion,
@@ -86,22 +86,18 @@ export function handleVersionAdded(event: VersionAdded): void {
   let version = findOrCreateVersion(id)
 
   version.id = id
-  // version.label = formatLabel(event.params.label)
+  version.label = formatLabel(event.params.label)
   version.tokenContract = tokenContractAddress
   version.createdAtBlockNumber = event.block.number
   version.createdAtTimestamp = event.block.timestamp
-
-  version.save()
 
   // call getURIs of version to fetch uris for specifc for label
   const singleEditionMintableContract = SingleEditionMintableContract.bind(
     Address.fromString(context.getString('tokenContract'))
   )
 
-  log.info("GEORGE BIZ {}", [i32ToString(event.params.label.at(2))])
-
   // NOTE(george): running into a type mismatch error on local graph node with the following
-  // const callResult = singleEditionMintableContract.try_getURIsOfVersion(event.params.label)
+  //const callResult = singleEditionMintableContract.try_getURIsOfVersion(event.params.label)
 
   // HACK(george): my solution for now is to call getURIs as it will retrieve latest added
   // it is unlikley versions to be updated in quick succsession.
@@ -111,33 +107,56 @@ export function handleVersionAdded(event: VersionAdded): void {
     // TODO: need to add urlHashes
     return
   }
-  const URIs = callResult.value
 
   // create urlHash pair for image
-  let imageUrlHash = findOrCreateUrlHashPair(`${id}-image`)
-  imageUrlHash.id = `${id}-image`
-  imageUrlHash.url = URIs.value0
-  imageUrlHash.hash = URIs.value1.toHexString()
-  imageUrlHash.type = "image"
-  imageUrlHash.version = id
-  imageUrlHash.lastUpdatedTimestamp = event.block.timestamp
-  imageUrlHash.lastUpdatedBlockNumber = event.block.number
-
-  imageUrlHash.save()
+  const image = addUrlHashPair(
+    id,
+    "image",
+    callResult.value,
+    event
+  )
+  version.image = image.id
 
   // create urlHash pair for animation
-  let animationUrlHash = findOrCreateUrlHashPair(`${id}-animation`)
-  animationUrlHash.id = `${id}-animation`
-  animationUrlHash.url = URIs.value0
-  animationUrlHash.hash = URIs.value1.toHexString()
-  animationUrlHash.type = "animation"
-  animationUrlHash.version = id
-  animationUrlHash.lastUpdatedTimestamp = event.block.timestamp
-  animationUrlHash.lastUpdatedBlockNumber = event.block.number
+  const animation = addUrlHashPair(
+    id,
+    "animation",
+    callResult.value,
+    event
+  )
+  version.animation = animation.id
 
-  animationUrlHash.save()
+  version.save()
 
   log.info(`Completed: handler for VersionAdded for token {}`, [id])
+}
+
+function addUrlHashPair(
+  versionId: string,
+  type: string, // TODO: enum check?
+  getURIsResult: SingleEditionMintable__getURIsResult,
+  event: VersionAdded
+): UrlHashPair {
+  let urlHashPair = findOrCreateUrlHashPair(`${versionId}-${type}`)
+  urlHashPair.id = `${versionId}-${type}`
+  urlHashPair.version = versionId
+  urlHashPair.type = type
+  urlHashPair.lastUpdatedTimestamp = event.block.timestamp
+  urlHashPair.lastUpdatedBlockNumber = event.block.number
+
+  if(type === "image"){
+    urlHashPair.url = getURIsResult.value0
+    urlHashPair.hash = getURIsResult.value1.toHexString()
+  }
+
+  if(type === "animation"){
+    urlHashPair.url = getURIsResult.value2
+    urlHashPair.hash = getURIsResult.value3.toHexString()
+  }
+
+  urlHashPair.save()
+
+  return urlHashPair
 }
 
 const urlTypes = [

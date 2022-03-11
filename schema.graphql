@@ -22,20 +22,7 @@ type TokenContract @entity {
   "The contract that created this tokenContract"
   tokenContractCreator: TokenContractCreator!
 
-  # TODO: decide if it's better to give specfic urls or version
-
-  "The imageURL"
-  imageURL: String!
-
-  "The sha-256 hash of the content of imageURL"
-  imageHash: String!
-
-  "The animationURL"
-  animationURL: String!
-
-  "The sha-256 hash of the content of animationURL"
-  animationHash: String!
-
+  # TODO: index this
   "The latest version by label"
   latestVersion: Version!
 
@@ -104,9 +91,11 @@ type Version @entity {
   "The semantic label of the version"
   label: String!
 
-  "The url and hash pairs"
-  # TODO: would it be better to just have animation / image urls
-  urls: [UrlHashPair!]! @derivedFrom(field: "version")
+  "The url and hash pair of image url"
+  image: UrlHashPair!
+
+  "The url and hash pair of animation url"
+  animation: UrlHashPair!
 
   "The timestamp of the block the Purchase was created in"
   createdAtTimestamp: BigInt!
