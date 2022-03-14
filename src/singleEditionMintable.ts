@@ -16,6 +16,7 @@ import {
   findOrCreateUrlUpdate,
   findOrCreateUser,
   findOrCreateVersion,
+  findOrCreateTransfer,
   zeroAddress
 } from './helpers'
 
@@ -25,23 +26,36 @@ import { log, dataSource, Address, BigInt } from '@graphprotocol/graph-ts'
 
 export function handleTransfer(event: Transfer): void {
   let context = dataSource.context()
-  const id = `${context.getString('tokenContract')}-${event.params.tokenId.toString()}`
-  log.info(`Starting handler for Transfer for token {}`, [id])
+  const tokenId = `${context.getString('tokenContract')}-${event.params.tokenId.toString()}`
+  log.info(`Starting handler for Transfer for token {}`, [tokenId])
 
-  // Handle Mint
+  // create transfer
+  let transferId = `${tokenId}-${event.transaction.hash.toHexString()}`
+  let transfer = findOrCreateTransfer(transferId)
+  transfer.id = transferId
+  transfer.transactionHash = event.transaction.hash.toHexString()
+  transfer.token = tokenId
+  transfer.from = event.params.from.toHexString()
+  transfer.to = event.params.to.toHexString()
+  transfer.createdAtTimestamp = event.block.timestamp
+  transfer.createdAtBlockNumber = event.block.number
+  transfer.save()
+
+  // handle mint
   let from = event.params.from.toString()
   if(!from || (from == zeroAddress)){
     handleMint(event)
-    log.info(`Completed handler for Transfer for token {}`, [id])
+    log.info(`Completed handler for Transfer for token {}`, [tokenId])
     return
   }
 
-  let token = findOrCreateToken(id)
+  // update token
+  let token = findOrCreateToken(tokenId)
   token.owner = event.params.to.toHexString()
   token.prevOwner = event.params.from.toHexString()
   token.save()
 
-  log.info(`Completed handler for Transfer for token {}`, [id])
+  log.info(`Completed handler for Transfer for token {}`, [tokenId])
 }
 
 function handleMint(event: Transfer): void {

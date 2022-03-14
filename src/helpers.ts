@@ -12,7 +12,8 @@ import {
   TokenContract,
   Version,
   UrlHashPair,
-  UrlUpdate
+  UrlUpdate,
+  Transfer
 } from '../types/schema'
 
 export const zeroAddress = '0x0000000000000000000000000000000000000000'
@@ -96,6 +97,17 @@ export function findOrCreateTokenContract(id: string): TokenContract {
   }
 
   return tokenContract as TokenContract
+}
+
+export function findOrCreateTransfer(id: string): Transfer {
+  let transfer = Transfer.load(id)
+
+  if(transfer == null){
+    transfer = new Transfer(id)
+    transfer.save()
+  }
+
+  return transfer as Transfer
 }
 
 export function createEditionsAuction(

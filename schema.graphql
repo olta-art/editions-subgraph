@@ -162,7 +162,10 @@ type Token @entity {
   "The number of the block the Purchase was created in"
   createdAtBlockNumber: BigInt!
 
-  # TODO: token royalties, burn, tranfers(sold for) auctions?
+  "The transfers of Token"
+  transfers: [Transfer!]! @derivedFrom(field: "token")
+
+  # TODO: token royalties, burn, auctions?
 }
 
 type Currency @entity {
@@ -234,6 +237,29 @@ type Purchase @entity {
   createdAtTimestamp: BigInt!
 
   "The number of the block the Purchase was created in"
+  createdAtBlockNumber: BigInt!
+}
+
+type Transfer @entity {
+  "<tokenContractAddress>-<tokenId>-<transactionHash>"
+  id: ID!
+
+  "Transaction hash for the transfer"
+  transactionHash: String!
+
+  "The Token associated with the Transfer"
+  token: Token!
+
+  "The User transferring the Media"
+  from: User!
+
+  "The User receiving the Media"
+  to: User!
+
+  "The timestamp of the block the Transfer was created in"
+  createdAtTimestamp: BigInt!
+
+  "The number of the block the Transfer was created in"
   createdAtBlockNumber: BigInt!
 }
 
