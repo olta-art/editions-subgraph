@@ -171,7 +171,8 @@ type Token @entity {
   "The number of the block the Media was burned in"
   burnedAtBlockNumber: BigInt
 
-  # TODO: token royalties, burn, approval, auctions?
+  "The approved user of the Token"
+  approved: User
 }
 
 type Currency @entity {

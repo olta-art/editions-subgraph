@@ -4,6 +4,7 @@ import {
   VersionAdded,
   VersionURLUpdated,
   SingleEditionMintable__getURIsResult,
+  Approval
 } from '../types/templates/SingleEditionMintable/SingleEditionMintable'
 
 import {
@@ -21,8 +22,6 @@ import {
 } from './helpers'
 
 import { log, dataSource, Address, BigInt } from '@graphprotocol/graph-ts'
-
-// TODO: updateEditionURLsCall -> or update smart contract to emit event
 
 export function handleTransfer(event: Transfer): void {
   let context = dataSource.context()
@@ -42,7 +41,7 @@ export function handleTransfer(event: Transfer): void {
   transfer.save()
 
   // handle mint
-  let from = event.params.from.toString()
+  let from = event.params.from.toHexString()
   if(!from || (from == zeroAddress)){
     handleMint(event)
     log.info(`Completed handler for Transfer for token {}`, [tokenId])
@@ -50,7 +49,7 @@ export function handleTransfer(event: Transfer): void {
   }
 
   // handle burn
-  let to = event.params.to.toString()
+  let to = event.params.to.toHexString()
   if(!to || (to == zeroAddress)){
     handleBurn(event)
     log.info(`Completed handler for Transfer for token {}`, [tokenId])
@@ -113,6 +112,35 @@ function handleBurn(event: Transfer): void {
   token.save()
 
   log.info(`Completed handler for Burn for token {}`, [id])
+}
+
+export function handleApproval(event: Approval): void {
+  let ownerAddr = event.params.owner.toHexString()
+  let approvedAddr = event.params.approved.toHexString()
+  let tokenId = event.params.tokenId.toString()
+
+  let context = dataSource.context()
+  const id = `${context.getString('tokenContract')}-${tokenId}`
+
+  log.info(
+    `Starting handler for Approval Event of tokenId: {}, owner: {}, approved: {}`,
+    [tokenId, ownerAddr, approvedAddr]
+  )
+
+  let token = findOrCreateToken(id)
+
+  if(!approvedAddr || (approvedAddr == zeroAddress)){
+    token.approved = null
+  } else {
+    token.approved = findOrCreateUser(approvedAddr).id
+  }
+
+  token.save()
+
+  log.info(
+    `Completed handler for Approval Event of tokenId: {}, owner: {}, approved: {}`,
+    [tokenId, ownerAddr, approvedAddr]
+  )
 }
 
 export function handleVersionAdded(event: VersionAdded): void {

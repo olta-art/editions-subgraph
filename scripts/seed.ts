@@ -148,7 +148,6 @@ const run = async () => {
     WETH
   )
 
-  
   const actionCount = (_total: number) => {
     let total = _total
     let counter = 0
@@ -163,7 +162,7 @@ const run = async () => {
     }
   }
 
-  const count = actionCount(9)
+  const count = actionCount(10)
 
   const [auctionId] = await getEventArguments(tx, "AuctionCreated")
   console.log(`${count.increment()} creator created auction:${auctionId}`, tx.hash)
@@ -220,6 +219,13 @@ const run = async () => {
   await tx.wait()
   console.log(`${count.increment()} creator updated version url`, tx.hash)
 
+  // grant approval
+  tx = await SingleEditionMintable.connect(collector).approve(
+    await creator.getAddress(),
+    1
+  )
+  await tx.wait()
+  console.log(`${count.increment()} collector granted approval of NFT id(1) to creator`, tx.hash)
 
   // purchase another nft
   salePrice = await EditionsAuction.getSalePrice(auctionId)

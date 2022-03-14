@@ -79,6 +79,8 @@ templates:
         - name: SingleEditionMintable
           file: ./deployments/localhost/SingleEditionMintable.json
       eventHandlers:
+        - event: Approval(indexed address,indexed address,indexed uint256)
+          handler: handleApproval
         - event: Transfer(indexed address,indexed address,indexed uint256)
           handler: handleTransfer
         - event: VersionAdded(uint8[3])
