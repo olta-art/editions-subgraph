@@ -48,20 +48,20 @@ const getDeployedContracts = async () => {
 }
 
 enum urlKeys {
-  animation,
-  image
+  image,
+  animation
 }
 
 
 const defaultVersion = () => {
   return {
     urls: [
-      // animation
+      // image
       {
         url: "https://ipfs.io/ipfsbafybeify52a63pgcshhbtkff4nxxxp2zp5yjn2xw43jcy4knwful7ymmgy",
         sha256hash: "0x0000000000000000000000000000000000000000000000000000000000000000"
       },
-      // image
+      // animation
       {
         url: "",
         sha256hash: "0x0000000000000000000000000000000000000000000000000000000000000000",
@@ -177,15 +177,15 @@ const run = async () => {
   console.log("5/7 collector purchased NFT", tx.hash)
 
   // add version
-  await SingleEditionMintable.connect(creator).addVersion(
+  tx = await SingleEditionMintable.connect(creator).addVersion(
     {
     urls: [
-      // animation
+      // image
       {
         url: "https://arweave.net/some-random-id",
         sha256hash: "0x1000000000000000000000000000000000000000000000000000000000000000"
       },
-      // image
+      // animation
       {
         url: "",
         sha256hash: "0x0000000000000000000000000000000000000000000000000000000000000000",
@@ -197,7 +197,7 @@ const run = async () => {
   console.log("6/7 creator added version to NFT", tx.hash)
 
   // update version url
-  await SingleEditionMintable.connect(creator).updateVersionURL(
+  tx = await SingleEditionMintable.connect(creator).updateVersionURL(
     [0,0,2] as Label,
     urlKeys.animation,
     "https://arweave.net/fnfNerUHj64h-J2yU9d-rZ6ZBAQRhrWfkw_fgiKyl2k"
