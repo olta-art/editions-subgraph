@@ -165,7 +165,13 @@ type Token @entity {
   "The transfers of Token"
   transfers: [Transfer!]! @derivedFrom(field: "token")
 
-  # TODO: token royalties, burn, auctions?
+  "The timestamp of the block the Media was burned in"
+  burnedAtTimeStamp: BigInt
+
+  "The number of the block the Media was burned in"
+  burnedAtBlockNumber: BigInt
+
+  # TODO: token royalties, burn, approval, auctions?
 }
 
 type Currency @entity {

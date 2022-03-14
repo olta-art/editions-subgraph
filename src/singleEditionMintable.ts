@@ -49,10 +49,18 @@ export function handleTransfer(event: Transfer): void {
     return
   }
 
+  // handle burn
+  let to = event.params.to.toString()
+  if(!to || (to == zeroAddress)){
+    handleBurn(event)
+    log.info(`Completed handler for Transfer for token {}`, [tokenId])
+    return
+  }
+
   // update token
   let token = findOrCreateToken(tokenId)
-  token.owner = event.params.to.toHexString()
-  token.prevOwner = event.params.from.toHexString()
+  token.owner = to
+  token.prevOwner = from
   token.save()
 
   log.info(`Completed handler for Transfer for token {}`, [tokenId])
@@ -89,6 +97,22 @@ function handleMint(event: Transfer): void {
   )
 
   log.info(`Completed handler for Mint for token {}`, [id])
+}
+
+function handleBurn(event: Transfer): void {
+  let context = dataSource.context()
+  const id = `${context.getString('tokenContract')}-${event.params.tokenId.toString()}`
+  log.info(`Starting handler for Burn for token {}`, [id])
+  let token = findOrCreateToken(id)
+
+  token.burnedAtTimeStamp = event.block.timestamp
+  token.burnedAtBlockNumber = event.block.number
+  token.owner = zeroAddress
+  token.prevOwner = event.params.from.toHexString()
+
+  token.save()
+
+  log.info(`Completed handler for Burn for token {}`, [id])
 }
 
 export function handleVersionAdded(event: VersionAdded): void {
