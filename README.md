@@ -6,11 +6,11 @@ Also to be accessible from within an olta artwork so that the nft's can be self 
 
 ## TODO 🛠️
 
-- [] tests
-- [] mock up a front end
-- [] mock up a test artwork
-- [] mumbai deployment
-- [] polygon deployment
+- [ ] tests
+- [ ] mock up a front end
+- [ ] mock up a test artwork
+- [ ] mumbai deployment
+- [ ] polygon deployment
 
 ---
 
