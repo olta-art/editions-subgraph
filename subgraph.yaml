@@ -56,8 +56,9 @@ dataSources:
         - event: CreatedEdition(indexed uint256,indexed address,uint256,address)
           handler: handleCreatedEdition
       # TODO: add back in for production
+      # NOTE: polygon PoS chain dosn't support trace_filter so may need to find another way
       # callHandlers:
-      #   - function: createEdition(string,string,string,string,bytes32,string,bytes32,uint256,uint256)
+      #   - function: createEdition(string,string,string,((string,bytes32)[],uint8[3]),uint256,uint256)
       #     handler: handleCreateEditionCall
 templates:
   - name: SingleEditionMintable
