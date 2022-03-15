@@ -56,12 +56,14 @@ export function handleAuctionApprovalUpdated(event: AuctionApprovalUpdated): voi
   log.info(`Starting handler for AuctionApprovalUpdate on auction {}`, [id])
 
   let auction = EditionsAuction.load(id)
-  // TODO: throw error?
-  if(auction == null) return
+
+  if(auction == null) {
+    log.error('Missing Editions Auction with id {} for approval', [id])
+    return
+  }
 
   auction.approved = event.params.approved
-  // TODO: should status change to canceld if approved is false?
-  auction.status = 'Active'
+  auction.status = event.params.approved ? "Active" : "Canceled"
   auction.approvedTimestamp = event.block.timestamp
   auction.approvedBlockNumber = event.block.number
   auction.save()
