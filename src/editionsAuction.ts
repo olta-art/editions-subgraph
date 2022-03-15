@@ -11,6 +11,7 @@ import {
 import {
   createEditionsAuction,
   findOrCreateCurrency,
+  findOrCreateToken,
   findOrCreateTokenContract,
   findOrCreateUser
 } from './helpers'
@@ -75,15 +76,20 @@ export function handleEditionPurchased(event: EditionPurchased): void {
   const id = event.transaction.hash.toHexString()
   log.info(`Starting handler for EditionPurchased on auction {}`, [id])
 
-  let auction = EditionsAuction.load(event.params.auctionId.toString())
-  // TODO: throw error?
-  if(auction == null) return
+  const auctionId = event.params.auctionId.toString()
+
+  let auction = EditionsAuction.load(auctionId)
+
+  if(auction == null) {
+    log.error('Missing Editions Auction with id {} for purchase', [auctionId])
+    return
+  }
 
   let purchase = new Purchase(id)
 
   purchase.id = id
   purchase.transactionHash = id
-  purchase.editionsAuction = auction.id
+  purchase.editionsAuction = auctionId
   purchase.amount = event.params.price
   purchase.collector = event.params.owner.toHexString()
   purchase.purchaseType = "Final"
@@ -91,13 +97,11 @@ export function handleEditionPurchased(event: EditionPurchased): void {
   purchase.createdAtBlockNumber = event.block.number
   purchase.currency = auction.auctionCurrency
 
-  // TODO: find token via its tx hash - if the same add to purchase
-  // possible solution is to create a tx entity? or find a way to dirive in the schema
-  // purchase.token = findTokenByTxHash
+  let tokenId = `${event.params.tokenContract.toHexString()}-${event.params.tokenId.toString()}`
+  let token = findOrCreateToken(tokenId)
+  purchase.token = token.id
 
   purchase.save()
 
   log.info(`Completed handler for EditionPurchased on auction {}`, [id])
 }
-
-// TODO: assign token to purchase by listening to transfer event on same txHash?
