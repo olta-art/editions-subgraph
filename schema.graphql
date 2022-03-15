@@ -291,7 +291,7 @@ type EditionsAuction @entity {
   tokenContract: TokenContract!
 
   "Whether or not the auction has been approved by the curator"
-  approved: Boolean!
+  approved: Boolean
 
   "The length of time the auction is intended to run for, after the first bid is made"
   duration: BigInt!
