@@ -1,8 +1,10 @@
 # Olta Editions Subgraph [WIP]
 
-Aim: to index all the necessary smart contract states for olta's editions and editions auction
+Aims:
+  1. to index all the necessary smart contract states for olta's editions and editions auction
+  2. to be accessible from within an olta artwork so that the nft's can be self aware
 
-Also to be accessible from within an olta artwork so that the nft's can be self aware
+This is a work in progress and not yet deployed if you would like to contribute please feel to reach out on [Olta's discord](https://discord.gg/wnj2qW8pH6)
 
 ## TODO 🛠️
 
