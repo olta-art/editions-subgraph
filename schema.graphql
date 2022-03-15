@@ -22,24 +22,27 @@ type TokenContract @entity {
   "The contract that created this tokenContract"
   tokenContractCreator: TokenContractCreator!
 
-  # TODO: index this
-  "The latest version by label"
-  latestVersion: Version!
+  # TODO: add latest version by label
+  # "The latest version by label"
+  # latestVersion: Version!
 
   "The last version added"
-  lastAddedVersion: Version!
+  lastAddedVersion: Version
 
   "The history of urls and hashes"
-  versions: [Version!] @derivedFrom(field: "tokenContract")
+  versions: [Version!]! @derivedFrom(field: "tokenContract")
 
   "The name of edition token"
-  name: String!
+  name: String
 
   "The symbol of edition token"
-  symbol: String!
+  symbol: String
 
   "The description of edition token"
-  description: String!
+  description: String
+
+  "The roylaty the creator recives on secondary sales"
+  creatorRoyaltyBPS: BigInt
 
   "The tokens minted"
   tokens: [Token!] @derivedFrom(field: "tokenContract")
@@ -112,7 +115,7 @@ type UrlUpdate @entity{
 }
 
 type Version @entity {
-  "<tokenAddress-versionIndex>"
+  "<tokenAddress-versionLabel>"
   id: ID!
 
   "The token the version is for"

@@ -18,7 +18,8 @@ import {
   findOrCreateUser,
   findOrCreateVersion,
   findOrCreateTransfer,
-  zeroAddress
+  zeroAddress,
+  findOrCreateTokenContract
 } from './helpers'
 
 import { log, dataSource, Address, BigInt } from '@graphprotocol/graph-ts'
@@ -194,6 +195,22 @@ export function handleVersionAdded(event: VersionAdded): void {
   version.animation = animation.id
 
   version.save()
+
+  // update token contract
+  let tokenContract = findOrCreateTokenContract(tokenContractAddress)
+
+  // handle token contract initialization
+  if(!tokenContract.lastAddedVersion){
+    tokenContract.name = singleEditionMintableContract.name()
+    tokenContract.symbol = singleEditionMintableContract.symbol()
+    tokenContract.description = singleEditionMintableContract.description()
+    tokenContract.creatorRoyaltyBPS = singleEditionMintableContract.royaltyBPS()
+  }
+
+  // update latest versions
+  tokenContract.lastAddedVersion = id
+
+  tokenContract.save()
 
   log.info(`Completed: handler for VersionAdded for token {}`, [id])
 }
