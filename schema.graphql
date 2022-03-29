@@ -1,11 +1,3 @@
-type TokenContractCreator @entity {
-  "The address of the token contract creator"
-  id: ID!
-
-  "THe token contracts created from the tokenContractCreator"
-  tokenContracts: [TokenContract!] @derivedFrom(field: "tokenContractCreator")
-}
-
 type TokenContract @entity {
   "The address of the token contract"
   id: ID!
@@ -18,9 +10,6 @@ type TokenContract @entity {
 
   "The total size of editions"
   editionSize: BigInt!
-
-  "The contract that created this tokenContract"
-  tokenContractCreator: TokenContractCreator!
 
   # TODO: add latest version by label
   # "The latest version by label"
@@ -307,6 +296,9 @@ type EditionsAuction @entity {
 
   "The price the auction ends at"
   endPrice: BigInt!
+
+  "The number of times the price drops during the auction"
+  numberOfPriceDrops: Int!
 
   "The sale percentage to send to the curator"
   curatorRoyaltyBPS: BigInt!

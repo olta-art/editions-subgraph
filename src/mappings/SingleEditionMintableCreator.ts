@@ -28,12 +28,11 @@ export function handleCreatedEdition (event: CreatedEdition): void {
   let tokenContract = findOrCreateTokenContract(tokenContractAddress)
 
   tokenContract.id = tokenContractAddress
-  tokenContract.creator =  event.params.creator.toHexString()
   tokenContract.editionSize =  event.params.editionSize
   tokenContract.tokenContractId = event.params.editionId
 
-  let creator = findOrCreateUser(event.address.toHexString())
-  tokenContract.tokenContractCreator = creator.id
+  let creator = findOrCreateUser(event.params.creator.toHexString())
+  tokenContract.creator = creator.id
 
   tokenContract.save()
 }

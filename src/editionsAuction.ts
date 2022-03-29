@@ -39,6 +39,7 @@ export function handleEditionsAuctionCreated(event: AuctionCreated): void {
     endTimestamp,
     event.params.startPrice,
     event.params.endPrice,
+    event.params.numberOfPriceDrops,
     event.params.curatorRoyaltyBPS,
     currency,
     event.block.timestamp,

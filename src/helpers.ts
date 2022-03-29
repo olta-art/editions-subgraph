@@ -119,6 +119,7 @@ export function createEditionsAuction(
   endTimestamp: BigInt,
   startPrice: BigInt,
   endPrice: BigInt,
+  numberOfPriceDrops: i32,
   curatorRoyaltyBPS: BigInt,
   auctionCurrency: Currency,
   createdAtTimestamp: BigInt,
@@ -137,6 +138,7 @@ export function createEditionsAuction(
   editionsAuction.endTimestamp = endTimestamp
   editionsAuction.startPrice = startPrice
   editionsAuction.endPrice = endPrice
+  editionsAuction.numberOfPriceDrops = numberOfPriceDrops
   editionsAuction.approvedTimestamp = null
   editionsAuction.curatorRoyaltyBPS = curatorRoyaltyBPS
   editionsAuction.creator = creator.id
