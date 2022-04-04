@@ -30,6 +30,8 @@ export function handleCreatedEdition (event: CreatedEdition): void {
   tokenContract.id = tokenContractAddress
   tokenContract.editionSize =  event.params.editionSize
   tokenContract.tokenContractId = event.params.editionId
+  tokenContract.createdAtBlockNumber = event.block.number
+  tokenContract.createdAtTimestamp = event.block.timestamp
 
   let creator = findOrCreateUser(event.params.creator.toHexString())
   tokenContract.creator = creator.id
