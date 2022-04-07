@@ -11,6 +11,15 @@ type TokenContract @entity {
   "The total size of editions"
   editionSize: BigInt!
 
+  "The total tokens minted"
+  totalMinted: BigInt!
+
+  "The total tokens burned"
+  totalBurned: BigInt!
+
+  "The total tokens in supply (minted - burned)"
+  totalSupply: BigInt!
+
   # TODO: add latest version by label
   # "The latest version by label"
   # latestVersion: Version!

@@ -89,6 +89,12 @@ function handleMint(event: Transfer): void {
 
   token.save()
 
+  // update token contract totalMint and totalSupply count
+  let tokenContract = findOrCreateTokenContract(context.getString('tokenContract'))
+  tokenContract.totalMinted = tokenContract.totalMinted.plus(BigInt.fromI32(1))
+  tokenContract.totalSupply = tokenContract.totalSupply.plus(BigInt.fromI32(1))
+  tokenContract.save()
+
   // TODO: test/research to see if this ever gets missed as purchese needs to be indexed before
   // index token to purchase based on tx hash
   addTokenToPurchase(
@@ -111,6 +117,12 @@ function handleBurn(event: Transfer): void {
   token.prevOwner = event.params.from.toHexString()
 
   token.save()
+
+  // update token contract totalBurned and totalSupply count
+  let tokenContract = findOrCreateTokenContract(context.getString('tokenContract'))
+  tokenContract.totalBurned = tokenContract.totalBurned.plus(BigInt.fromI32(1))
+  tokenContract.totalSupply = tokenContract.totalSupply.minus(BigInt.fromI32(1))
+  tokenContract.save()
 
   log.info(`Completed handler for Burn for token {}`, [id])
 }

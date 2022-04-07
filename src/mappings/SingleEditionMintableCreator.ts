@@ -8,7 +8,7 @@ import {
   findOrCreateTokenContract, findOrCreateUser
 } from "../helpers"
 
-import { log, DataSourceContext } from '@graphprotocol/graph-ts'
+import { log, DataSourceContext, BigInt } from '@graphprotocol/graph-ts'
 
 export function handleCreatedEdition (event: CreatedEdition): void {
 
@@ -32,6 +32,9 @@ export function handleCreatedEdition (event: CreatedEdition): void {
   tokenContract.tokenContractId = event.params.editionId
   tokenContract.createdAtBlockNumber = event.block.number
   tokenContract.createdAtTimestamp = event.block.timestamp
+  tokenContract.totalMinted =  BigInt.fromI32(0)
+  tokenContract.totalBurned =  BigInt.fromI32(0)
+  tokenContract.totalSupply =  BigInt.fromI32(0)
 
   let creator = findOrCreateUser(event.params.creator.toHexString())
   tokenContract.creator = creator.id
