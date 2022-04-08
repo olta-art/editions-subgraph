@@ -13,7 +13,9 @@ import {
   Version,
   UrlHashPair,
   UrlUpdate,
-  Transfer
+  Transfer,
+  TokenContractMinterApproval,
+  TokenContractMinterApproval
 } from '../types/schema'
 
 export const zeroAddress = '0x0000000000000000000000000000000000000000'
@@ -108,6 +110,17 @@ export function findOrCreateTransfer(id: string): Transfer {
   }
 
   return transfer as Transfer
+}
+
+export function findOrCreateTokenContractMinterApproval(id: string): TokenContractMinterApproval {
+  let tokenContractMinterApproval = TokenContractMinterApproval.load(id)
+
+  if(tokenContractMinterApproval == null){
+    tokenContractMinterApproval = new TokenContractMinterApproval(id)
+    tokenContractMinterApproval.save()
+  }
+
+  return tokenContractMinterApproval as TokenContractMinterApproval
 }
 
 export function createEditionsAuction(

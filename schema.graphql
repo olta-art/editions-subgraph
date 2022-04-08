@@ -20,6 +20,9 @@ type TokenContract @entity {
   "The total tokens in supply (minted - burned)"
   totalSupply: BigInt!
 
+  "The addressess for approved minter"
+  approvedMinters: [TokenContractMinterApproval!]! @derivedFrom(field: "tokenContract")
+
   # TODO: add latest version by label
   # "The latest version by label"
   # latestVersion: Version!
@@ -50,6 +53,20 @@ type TokenContract @entity {
 
   "The number of the block the Purchase was created in"
   createdAtBlockNumber: BigInt!
+}
+
+type TokenContractMinterApproval @entity {
+  "<userId-TokenContractId>"
+  id: ID!
+
+  "The user of the mint approval"
+  user: User!
+
+  "The token contract of the mint approval"
+  tokenContract: TokenContract!
+
+  "The approval status of whether the user can mint tokens"
+  status: Boolean!
 }
 
 enum urlType {
@@ -201,6 +218,9 @@ type User @entity {
   # "Users that have been granted `ApprovalForAll` Media of the User's Collection"
   # authorizedUsers: [User!]
 
+  "The TokenContracts the User is approved to mint"
+  approvedToMint: [TokenContractMinterApproval!]! @derivedFrom(field: "user")
+
   "The Tokens the User owns"
   collection: [Token!]! @derivedFrom(field: "owner")
 
@@ -208,7 +228,7 @@ type User @entity {
   creations: [TokenContract!]! @derivedFrom(field: "creator")
 
   "The Purchaces made by the User"
-  previousPurchases: [Purchase!] @derivedFrom(field: "collector")
+  previousPurchases: [Purchase!]! @derivedFrom(field: "collector")
 }
 
 enum PurchaseType {

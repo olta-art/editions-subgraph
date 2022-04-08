@@ -4,7 +4,8 @@ import {
   VersionAdded,
   VersionURLUpdated,
   SingleEditionMintable__getURIsResult,
-  Approval
+  Approval,
+  ApprovedMinter
 } from '../types/templates/SingleEditionMintable/SingleEditionMintable'
 
 import {
@@ -19,7 +20,8 @@ import {
   findOrCreateVersion,
   findOrCreateTransfer,
   zeroAddress,
-  findOrCreateTokenContract
+  findOrCreateTokenContract,
+  findOrCreateTokenContractMinterApproval
 } from './helpers'
 
 import { log, dataSource, Address, BigInt } from '@graphprotocol/graph-ts'
@@ -154,6 +156,24 @@ export function handleApproval(event: Approval): void {
     `Completed handler for Approval Event of tokenId: {}, owner: {}, approved: {}`,
     [tokenId, ownerAddr, approvedAddr]
   )
+}
+
+export function handleApprovedMinter(event: ApprovedMinter): void {
+  let context = dataSource.context()
+  let tokenContractAddress = context.getString('tokenContract')
+  let minterAddress = event.params.minter.toHexString()
+  let status = event.params.approved
+
+  let minterApprovalId = `${minterAddress}-${tokenContractAddress}`
+  let minterApproval = findOrCreateTokenContractMinterApproval(minterApprovalId)
+
+  let minter = findOrCreateUser(minterAddress)
+
+  minterApproval.tokenContract = tokenContractAddress
+  minterApproval.user = minter.id
+  minterApproval.status = status
+
+  minterApproval.save()
 }
 
 export function handleVersionAdded(event: VersionAdded): void {

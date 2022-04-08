@@ -72,6 +72,7 @@ templates:
       language: wasm/assemblyscript
       entities:
         - TokenContract
+        - TokenContractMinterApproval
         - Token
         - Version
         - UrlHashPair
@@ -88,6 +89,8 @@ templates:
           handler: handleVersionAdded
         - event: VersionURLUpdated(uint8[3],uint8,string)
           handler: handleVersionURLUpdated
+        - event: ApprovedMinter(indexed address,indexed address,bool)
+          handler: handleApprovedMinter
         # TODO: set price sale eth
         # TODO: other erc-721 events
       file: ./src/singleEditionMintable.ts
