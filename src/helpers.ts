@@ -14,7 +14,6 @@ import {
   UrlHashPair,
   UrlUpdate,
   Transfer,
-  TokenContractMinterApproval,
   TokenContractMinterApproval
 } from '../types/schema'
 
