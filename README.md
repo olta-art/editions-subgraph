@@ -9,8 +9,8 @@ This is a work in progress and not yet deployed if you would like to contribute 
 ## TODO 🛠️
 
 - [ ] tests
-- [ ] mock up a front end
-- [ ] mock up a test artwork
+- [ ] mock up a front end (in progress)
+- [ ] mock up a test artwork (in progress)
 - [ ] mumbai deployment
 - [ ] polygon deployment
 
@@ -29,7 +29,7 @@ The contracts are still WIP and because of that I have made a setup that allows 
 ### 2. generate needed folders
 There is a number of generated folders to be able to test and deploy to the local graph node. The order is important!
 
-- run `yarn setup-local-node` to start a local hardhat node. this creates a deployments/localhost folder with all the needed abis
+- run `yarn start-local-node` to start a local hardhat node. this creates a deployments/localhost folder with all the needed abis
 
 - run `yarn typechain` generates `typechain` for ethers.js to work with (used for tests and seeding scripts) uses abis from deployments/localhost
 
