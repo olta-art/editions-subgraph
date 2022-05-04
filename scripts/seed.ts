@@ -7,7 +7,9 @@ import {
   EditionsAuction__factory,
   SingleEditionMintableCreator__factory,
   SingleEditionMintable__factory,
-  WETH__factory
+  WETH__factory,
+  SeededSingleEditionMintable,
+  SeededSingleEditionMintable__factory
 } from "../typechain"
 
 import { SignerWithAddress } from "@nomiclabs/hardhat-ethers/signers";
@@ -126,9 +128,32 @@ const createEdition = async (signer: SignerWithAddress, SingleEditonCreator: Sin
   return SingleEditionContract
 }
 
+const createSeededEdition = async (signer: SignerWithAddress, SingleEditonCreator: SingleEditionMintableCreator) => {
+  const transaction = await SingleEditonCreator.connect(signer).createEdition(
+    editionData(
+      "Testing Seeded Token",
+      "SEED TEST",
+      "This is a testing seeded token for all",
+      defaultVersion(),
+      10,
+      10
+    ),
+    Implementation.seededEditions
+  );
+  const [id, creator, editionSize, editionContractAddress] = await getEventArguments(transaction, "CreatedEdition")
+  console.log(id)
+  const editionResult = await SingleEditonCreator.getEditionAtId(id, Implementation.seededEditions)
+  const SeededSingleEditionContract = (await ethers.getContractAt(
+    SeededSingleEditionMintable__factory.abi,
+    editionResult
+  )) as SeededSingleEditionMintable;
+
+  return SeededSingleEditionContract
+}
+
 const createAuction = async (
   signer: SignerWithAddress,
-  SingleEdition: SingleEditionMintable,
+  SingleEdition: SingleEditionMintable | SeededSingleEditionMintable,
   EditionsAuction: EditionsAuction,
   erc20: WETH,
   options = {}
@@ -271,6 +296,20 @@ const run = async () => {
   tx = await SingleEditionMintable.connect(collector).burn(2)
   await tx.wait()
   console.log(`${count.increment()} collector burned NFT id(2)`, tx.hash)
+
+  // add seeded edition and auction
+  const SeededSingleEditionMintable = await createSeededEdition(creator, SingleEditonCreator)
+  tx = await createAuction(
+    creator,
+    SeededSingleEditionMintable,
+    EditionsAuction,
+    WETH,
+    { editionContract: {
+      id: SeededSingleEditionMintable.address,
+      implementation: Implementation.seededEditions
+    }}
+  )
+  console.log(`${count.increment()} creator created seeded edition and put it up for auction`, tx.hash)
 }
 
 run();
