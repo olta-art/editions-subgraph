@@ -1,3 +1,8 @@
+enum TokenContractImplementation {
+  editions,
+  seededEditions
+}
+
 type TokenContract @entity {
   "The address of the token contract"
   id: ID!
@@ -44,6 +49,9 @@ type TokenContract @entity {
 
   "The roylaty the creator recives on secondary sales"
   creatorRoyaltyBPS: BigInt
+
+  "The implementation type of the contract"
+  implementation: TokenContractImplementation!
 
   "The tokens minted"
   tokens: [Token!] @derivedFrom(field: "tokenContract")
@@ -155,6 +163,9 @@ type Version @entity {
 type Token @entity {
   "<tokenContractAddress-editionNumber>"
   id: ID!
+
+  "The seed number of the token. null if not seeded"
+  seed: BigInt
 
   "The edition number of the token"
   editionNumber: BigInt!
