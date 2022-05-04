@@ -310,6 +310,21 @@ const run = async () => {
     }}
   )
   console.log(`${count.increment()} creator created seeded edition and put it up for auction`, tx.hash)
+  const [seededAuctionId] = await getEventArguments(tx, "AuctionCreated")
+
+  // wait 2 sec for auction to start
+  await delay(2000)
+
+  // approve auction for minting
+  tx = await SeededSingleEditionMintable.connect(creator).setApprovedMinter(EditionsAuction.address, true)
+  console.log(`${count.increment()} creator approved editionsAuction to mint`, tx.hash)
+  tx.wait()
+
+  // purchase seeded nft
+  salePrice = await EditionsAuction.getSalePrice(seededAuctionId)
+  tx = await EditionsAuction.connect(collector)["purchase(uint256,uint256,uint256)"](seededAuctionId, salePrice, 5)
+  await tx.wait()
+  console.log(`${count.increment()} collector purchased seeded NFT seed(5)`, tx.hash)
 }
 
 run();
