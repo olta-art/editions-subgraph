@@ -50,6 +50,13 @@ enum urlKeys {
   animation
 }
 
+export interface Version {
+  urls: {
+    url: string;
+    sha256hash: string;
+  }[];
+  label: Label;
+}
 
 const defaultVersion = () => {
   return {
@@ -66,8 +73,29 @@ const defaultVersion = () => {
       }
     ],
     label: [0,0,1] as Label
-  }
+  } as Version
 }
+
+enum Implementation {
+  editions,
+  seededEditions
+}
+
+const editionData = (
+  name: string,
+  symbol: string,
+  description: string,
+  version: Version,
+  editionSize: BigNumberish,
+  royaltyBPS: BigNumberish
+) => ({
+  name,
+  symbol,
+  description,
+  version,
+  editionSize,
+  royaltyBPS
+})
 
 // Hack to get event args
 export const getEventArguments = async (tx: ContractTransaction, eventName: string) => {
@@ -78,15 +106,18 @@ export const getEventArguments = async (tx: ContractTransaction, eventName: stri
 
 const createEdition = async (signer: SignerWithAddress, SingleEditonCreator: SingleEditionMintableCreator) => {
   const transaction = await SingleEditonCreator.connect(signer).createEdition(
-    "Testing Token",
-    "TEST",
-    "This is a testing token for all",
-    defaultVersion(),
-    10,
-    10
+    editionData(
+      "Testing Token",
+      "TEST",
+      "This is a testing token for all",
+      defaultVersion(),
+      10,
+      10
+    ),
+    Implementation.editions
   );
   const [id, creator, editionSize, editionContractAddress] = await getEventArguments(transaction, "CreatedEdition")
-  const editionResult = await SingleEditonCreator.getEditionAtId(id)
+  const editionResult = await SingleEditonCreator.getEditionAtId(id, Implementation.editions)
   const SingleEditionContract = (await ethers.getContractAt(
     SingleEditionMintable__factory.abi,
     editionResult
@@ -103,7 +134,10 @@ const createAuction = async (
   options = {}
 ) => {
   const defaults = {
-    editionContract: SingleEdition.address,
+    editionContract: {
+      id: SingleEdition.address,
+      implementation: Implementation.editions
+    },
     startTime: Math.floor((Date.now() / 1000)), // starts straight away
     duration: 60 * 8, // 8 minutes
     startPrice: ethers.utils.parseEther("1.0"),
@@ -186,7 +220,7 @@ const run = async () => {
 
   // purchase nft
   let salePrice = await EditionsAuction.getSalePrice(auctionId)
-  tx = await EditionsAuction.connect(collector).purchase(auctionId, salePrice)
+  tx = await EditionsAuction.connect(collector)["purchase(uint256,uint256)"](auctionId, salePrice)
   await tx.wait()
   console.log(`${count.increment()} collector purchased NFT`, tx.hash)
 
@@ -229,7 +263,7 @@ const run = async () => {
 
   // purchase another nft
   salePrice = await EditionsAuction.getSalePrice(auctionId)
-  tx = await EditionsAuction.connect(collector).purchase(auctionId, salePrice)
+  tx = await EditionsAuction.connect(collector)["purchase(uint256,uint256)"](auctionId, salePrice)
   await tx.wait()
   console.log(`${count.increment()} collector purchased NFT id(2)`, tx.hash)
 
