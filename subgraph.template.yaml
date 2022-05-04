@@ -28,10 +28,12 @@ dataSources:
         - name: ERC20NameBytes
           file: ./abis/ERC20/ERC20NameBytes.json
       eventHandlers:
-        - event: AuctionCreated(uint256,address,address,uint256,uint256,uint256,uint256,uint8,address,uint256,address)
+        - event: AuctionCreated(uint256,address,(address,uint8),uint256,uint256,uint256,uint256,uint8,address,uint256,address)
           handler: handleEditionsAuctionCreated
         - event: EditionPurchased(uint256,address,uint256,uint256,address)
           handler: handleEditionPurchased
+        - event: SeededEditionPurchased(uint256,address,uint256,uint256,uint256,address)
+          handler: handleSeededEditionPurchased
         - event: AuctionApprovalUpdated(uint256,address,bool)
           handler: handleAuctionApprovalUpdated
       file: ./src/editionsAuction.ts
@@ -53,13 +55,8 @@ dataSources:
       entities:
         - TokenContractCreator
       eventHandlers:
-        - event: CreatedEdition(indexed uint256,indexed address,uint256,address)
+        - event: CreatedEdition(indexed uint256,indexed address,uint256,address,uint8)
           handler: handleCreatedEdition
-      # TODO: add back in for production
-      # NOTE: polygon PoS chain dosn't support trace_filter so may need to find another way
-      # callHandlers:
-      #   - function: createEdition(string,string,string,((string,bytes32)[],uint8[3]),uint256,uint256)
-      #     handler: handleCreateEditionCall
 templates:
   - name: SingleEditionMintable
     kind: ethereum/contract
@@ -80,6 +77,39 @@ templates:
       abis:
         - name: SingleEditionMintable
           file: ./deployments/localhost/SingleEditionMintable.json
+      eventHandlers:
+        - event: Approval(indexed address,indexed address,indexed uint256)
+          handler: handleApproval
+        - event: Transfer(indexed address,indexed address,indexed uint256)
+          handler: handleTransfer
+        - event: VersionAdded(uint8[3])
+          handler: handleVersionAdded
+        - event: VersionURLUpdated(uint8[3],uint8,string)
+          handler: handleVersionURLUpdated
+        - event: ApprovedMinter(indexed address,indexed address,bool)
+          handler: handleApprovedMinter
+        # TODO: set price sale eth
+        # TODO: other erc-721 events
+      file: ./src/singleEditionMintable.ts
+  - name: SeededSingleEditionMintable
+    kind: ethereum/contract
+    network: mainnet
+    source:
+      abi: SeededSingleEditionMintable
+    mapping:
+      kind: ethereum/events
+      apiVersion: 0.0.5
+      language: wasm/assemblyscript
+      entities:
+        - TokenContract
+        - TokenContractMinterApproval
+        - Token
+        - Version
+        - UrlHashPair
+        - UrlUpdate
+      abis:
+        - name: SeededSingleEditionMintable
+          file: ./deployments/localhost/SeededSingleEditionMintable.json
       eventHandlers:
         - event: Approval(indexed address,indexed address,indexed uint256)
           handler: handleApproval
