@@ -123,4 +123,4 @@ templates:
           handler: handleApprovedMinter
         # TODO: set price sale eth
         # TODO: other erc-721 events
-      file: ./src/singleEditionMintable.ts
+      file: ./src/seededSingleEditionMintable.ts
