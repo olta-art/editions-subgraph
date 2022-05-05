@@ -22,4 +22,4 @@ export function handleApprovedMinter(event: ApprovedMinter): void { approvedMint
 export function handleTransfer(event: Transfer): void { transferHandler(event, context) }
 export function handleApproval(event: Approval): void { approvalHandler(event, context) }
 export function handleVersionAdded(event: VersionAdded): void { versionAddedHandler(event, context) }
-export function handleVersionUrlUpdated(event: VersionURLUpdated): void { versionURLUpdatedHandler(event, context) }
+export function handleVersionURLUpdated(event: VersionURLUpdated): void { versionURLUpdatedHandler(event, context) }
