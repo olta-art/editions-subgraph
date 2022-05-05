@@ -1,7 +1,8 @@
 import {
   AuctionCreated,
   AuctionApprovalUpdated,
-  EditionPurchased
+  EditionPurchased,
+  SeededEditionPurchased
 } from '../types/EditionsAuction/EditionsAuction'
 
 import {
@@ -26,7 +27,7 @@ export function handleEditionsAuctionCreated(event: AuctionCreated): void {
 
   const tokenCreator = findOrCreateUser(event.params.creator.toHexString())
   const curator = findOrCreateUser(event.params.curator.toHexString())
-  const tokenContract = findOrCreateTokenContract(event.params.editionContract.toHexString())
+  const tokenContract = findOrCreateTokenContract(event.params.edition.id.toHexString())
   const currency = findOrCreateCurrency(event.params.auctionCurrency.toHexString())
   const endTimestamp = event.params.startTimestamp.plus(event.params.duration)
 
@@ -77,6 +78,21 @@ export function handleEditionPurchased(event: EditionPurchased): void {
   const id = event.transaction.hash.toHexString()
   log.info(`Starting handler for EditionPurchased on auction {}`, [id])
 
+  createPurchase(event, id)
+
+  log.info(`Completed handler for EditionPurchased on auction {}`, [id])
+}
+
+export function handleSeededEditionPurchased(event: SeededEditionPurchased): void {
+  const id = event.transaction.hash.toHexString()
+  log.info(`Starting handler for SeededEditionPurchased on auction {}`, [id])
+
+  createPurchase(event, id)
+
+  log.info(`Completed handler for SeededEditionPurchased on auction {}`, [id])
+}
+
+function createPurchase<T extends EditionPurchased>(event: T, id: string): void {
   const auctionId = event.params.auctionId.toString()
 
   let auction = EditionsAuction.load(auctionId)
@@ -103,6 +119,4 @@ export function handleEditionPurchased(event: EditionPurchased): void {
   purchase.token = token.id
 
   purchase.save()
-
-  log.info(`Completed handler for EditionPurchased on auction {}`, [id])
 }
