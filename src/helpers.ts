@@ -263,3 +263,12 @@ export function fetchCurrencyName(currencyAddress: Address): string {
 function isNullEthValue(value: string): boolean {
   return value == '0x0000000000000000000000000000000000000000000000000000000000000001'
 }
+
+export function i32ToString (value: i32): string {
+  return BigInt.fromI32(value).toString()
+}
+
+// formats label to semantic versioning style
+export function formatLabel (label: i32[]): string {
+  return `${i32ToString(label.at(0))}.${i32ToString(label.at(1))}.${i32ToString(label.at(2))}`
+}

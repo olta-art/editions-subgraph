@@ -3,3 +3,9 @@ export const tokenContractImplementations = [
   "editions",
   "seededEditions"
 ]
+
+// url types on versions of token contracts
+export const urlTypes = [
+  "image",
+  "animation"
+]
