@@ -4,19 +4,16 @@ import {
   SingleEditionMintable as SingleEditionMintableContract,
   VersionAdded,
   VersionURLUpdated,
-  SingleEditionMintable__getURIsResult,
   Approval,
   ApprovedMinter,
 } from '../types/templates/SingleEditionMintable/SingleEditionMintable'
 
 import {
   SeededSingleEditionMintable,
-  SeededSingleEditionMintable__getURIsResult
 } from '../types/templates/SeededSingleEditionMintable/SeededSingleEditionMintable'
 
 import {
   Purchase,
-  UrlHashPair
 } from '../types/schema'
 
 import {
@@ -34,10 +31,7 @@ import {
 
 import {
   urlTypes,
-  tokenContractImplementations
 } from './constants'
-
-import { ethereum } from '@graphprotocol/graph-ts'
 
 import { log, Address, BigInt, DataSourceContext } from '@graphprotocol/graph-ts'
 
@@ -221,11 +215,11 @@ export function versionAddedHandler<T extends VersionAdded>(event: T, context: D
     )
 
     // HACK(george): running into a type mismatch error with the following
-    // const callResult = singleEditionMintableContract.try_getURIsOfVersion(event.params.label)
+    const callResult = singleEditionMintableContract.try_getURIsOfVersion(event.params.label)
     // TODO: try this https://www.assemblyscript.org/stdlib/staticarray.html
     // my solution for now is to call getURIs as it will retrieve latest added URIs
     // it is "unlikley" versions to be updated in quick succsession.
-    const callResult = singleEditionMintableContract.try_getURIs()
+    // const callResult = singleEditionMintableContract.try_getURIs()
     if(callResult.reverted){
       log.info("getURIs Reverted", [])
       // TODO: need to add urlHashes
