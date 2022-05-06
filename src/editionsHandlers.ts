@@ -116,7 +116,6 @@ function mintHandler<T extends Transfer>(event: T, context: DataSourceContext): 
     token.tokenURI = singleEditionMintable.tokenURI(event.params.tokenId)
   }
 
-  // NOTE: only difference
   if(tokenContract.implementation == "seededEditions"){
     let seededSingleEditionMintable = SeededSingleEditionMintable.bind(tokenContractAddress)
     token.tokenURI = seededSingleEditionMintable.tokenURI(event.params.tokenId)
