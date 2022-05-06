@@ -10,7 +10,8 @@ import {
 } from '../types/templates/SingleEditionMintable/SingleEditionMintable'
 
 import {
-  SeededSingleEditionMintable
+  SeededSingleEditionMintable,
+  SeededSingleEditionMintable__getURIsResult
 } from '../types/templates/SeededSingleEditionMintable/SeededSingleEditionMintable'
 
 import {
@@ -24,16 +25,19 @@ import {
   findOrCreateUrlHashPair,
   findOrCreateUrlUpdate,
   findOrCreateUser,
-  findOrCreateVersion,
   findOrCreateTransfer,
   findOrCreateTokenContractMinterApproval,
   zeroAddress,
-  formatLabel
+  formatLabel,
+  addVersion,
 } from './helpers'
 
 import {
-  urlTypes
+  urlTypes,
+  tokenContractImplementations
 } from './constants'
+
+import { ethereum } from '@graphprotocol/graph-ts'
 
 import { log, Address, BigInt, DataSourceContext } from '@graphprotocol/graph-ts'
 
@@ -207,98 +211,94 @@ export function versionAddedHandler<T extends VersionAdded>(event: T, context: D
   let id = `${context.getString('tokenContract')}-${formatLabel(event.params.label)}`
   log.info(`Starting handler for VersionAdded for token {}`, [id])
 
-  let version = findOrCreateVersion(id)
-
-  version.id = id
-  version.label = formatLabel(event.params.label)
-  version.tokenContract = tokenContractAddress
-  version.createdAtBlockNumber = event.block.number
-  version.createdAtTimestamp = event.block.timestamp
-
-  // call getURIs of version to fetch uris for specifc for label
-  const singleEditionMintableContract = SingleEditionMintableContract.bind(
-    Address.fromString(context.getString('tokenContract'))
-  )
-
-  // NOTE(george): running into a type mismatch error on local graph node with the following
-  //const callResult = singleEditionMintableContract.try_getURIsOfVersion(event.params.label)
-
-  // TODO: clean up and intergrate seed editions
-
-  // HACK(george): my solution for now is to call getURIs as it will retrieve latest added
-  // it is unlikley versions to be updated in quick succsession.
-  const callResult = singleEditionMintableContract.try_getURIs()
-  if(callResult.reverted){
-    log.info("getURIs Reverted", [])
-    // TODO: need to add urlHashes
-    return
-  }
-
-  // create urlHash pair for image
-  const image = addUrlHashPair(
-    id,
-    "image",
-    callResult.value,
-    event
-  )
-  version.image = image.id
-
-  // create urlHash pair for animation
-  const animation = addUrlHashPair(
-    id,
-    "animation",
-    callResult.value,
-    event
-  )
-  version.animation = animation.id
-
-  version.save()
-
   // update token contract
   let tokenContract = findOrCreateTokenContract(tokenContractAddress)
 
-  // handle token contract initialization
-  if(!tokenContract.lastAddedVersion){
-    tokenContract.name = singleEditionMintableContract.name()
-    tokenContract.symbol = singleEditionMintableContract.symbol()
-    tokenContract.description = singleEditionMintableContract.description()
-    tokenContract.creatorRoyaltyBPS = singleEditionMintableContract.royaltyBPS()
+  if(tokenContract.implementation == "editions") {
+     // call getURIs of version to fetch uris for specifc for label
+    const singleEditionMintableContract = SingleEditionMintableContract.bind(
+      Address.fromString(tokenContractAddress)
+    )
+
+    // HACK(george): running into a type mismatch error with the following
+    // const callResult = singleEditionMintableContract.try_getURIsOfVersion(event.params.label)
+    // TODO: try this https://www.assemblyscript.org/stdlib/staticarray.html
+    // my solution for now is to call getURIs as it will retrieve latest added URIs
+    // it is "unlikley" versions to be updated in quick succsession.
+    const callResult = singleEditionMintableContract.try_getURIs()
+    if(callResult.reverted){
+      log.info("getURIs Reverted", [])
+      // TODO: need to add urlHashes
+      return
+    }
+
+    // handle token contract initialization
+    if(!tokenContract.lastAddedVersion){
+      tokenContract.name = singleEditionMintableContract.name()
+      tokenContract.symbol = singleEditionMintableContract.symbol()
+      tokenContract.description = singleEditionMintableContract.description()
+      tokenContract.creatorRoyaltyBPS = singleEditionMintableContract.royaltyBPS()
+    }
+
+    // update latest versions
+    tokenContract.lastAddedVersion = id
+
+    tokenContract.save()
+
+    addVersion(
+      id,
+      formatLabel(event.params.label),
+      tokenContract.id,
+      callResult.value.value0,
+      callResult.value.value1.toHexString(),
+      callResult.value.value2,
+      callResult.value.value3.toHexString(),
+      event.block.timestamp,
+      event.block.number
+    )
   }
 
-  // update latest versions
-  tokenContract.lastAddedVersion = id
+  if(tokenContract.implementation == "seededEditions"){
+    // call getURIs of version to fetch uris for specifc for label
+    const seededSingleEditionMintable = SeededSingleEditionMintable.bind(
+      Address.fromString(tokenContractAddress)
+    )
 
-  tokenContract.save()
+    // HACK(george): same hack as used above for singlineEditionMintable
+    const callResult = seededSingleEditionMintable.try_getURIs()
+    if(callResult.reverted){
+      log.info("getURIs Reverted", [])
+      // TODO: need to add urlHashes
+      return
+    }
+
+    // handle token contract initialization
+    if(!tokenContract.lastAddedVersion){
+      tokenContract.name = seededSingleEditionMintable.name()
+      tokenContract.symbol = seededSingleEditionMintable.symbol()
+      tokenContract.description = seededSingleEditionMintable.description()
+      tokenContract.creatorRoyaltyBPS = seededSingleEditionMintable.royaltyBPS()
+    }
+
+    // update latest versions
+    tokenContract.lastAddedVersion = id
+
+    tokenContract.save()
+
+    addVersion(
+      id,
+      formatLabel(event.params.label),
+      tokenContract.id,
+      callResult.value.value0,
+      callResult.value.value1.toHexString(),
+      callResult.value.value2,
+      callResult.value.value3.toHexString(),
+      event.block.timestamp,
+      event.block.number
+    )
+  }
 
   log.info(`Completed: handler for VersionAdded for token {}`, [id])
-}
-
-function addUrlHashPair<GetURIsResult extends SingleEditionMintable__getURIsResult>(
-  versionId: string,
-  type: string, // TODO: enum check?
-  getURIsResult: GetURIsResult,
-  event: VersionAdded
-): UrlHashPair {
-  let urlHashPair = findOrCreateUrlHashPair(`${versionId}-${type}`)
-  urlHashPair.id = `${versionId}-${type}`
-  urlHashPair.version = versionId
-  urlHashPair.type = type
-  urlHashPair.createdAtTimestamp = event.block.timestamp
-  urlHashPair.createdAtBlockNumber = event.block.number
-
-  if(type === "image"){
-    urlHashPair.url = getURIsResult.value0
-    urlHashPair.hash = getURIsResult.value1.toHexString()
-  }
-
-  if(type === "animation"){
-    urlHashPair.url = getURIsResult.value2
-    urlHashPair.hash = getURIsResult.value3.toHexString()
-  }
-
-  urlHashPair.save()
-
-  return urlHashPair
 }
 
 export function versionURLUpdatedHandler<T extends VersionURLUpdated>(event: T, context: DataSourceContext): void{
