@@ -4,6 +4,9 @@ import { ERC20 } from '../types/EditionsAuction/ERC20'
 import { ERC20NameBytes } from '../types/EditionsAuction/ERC20NameBytes'
 import { ERC20SymbolBytes } from '../types/EditionsAuction/ERC20SymbolBytes'
 
+import { SingleEditionMintable__getURIsResult } from '../types/templates/SingleEditionMintable/SingleEditionMintable'
+import { SeededSingleEditionMintable__getURIsResult } from '../types/templates/SeededSingleEditionMintable/SeededSingleEditionMintable'
+
 import {
   User,
   EditionsAuction,
@@ -16,6 +19,8 @@ import {
   Transfer,
   TokenContractMinterApproval
 } from '../types/schema'
+
+import { ethereum } from '@graphprotocol/graph-ts/index'
 
 export const zeroAddress = '0x0000000000000000000000000000000000000000'
 /**
@@ -262,4 +267,80 @@ export function fetchCurrencyName(currencyAddress: Address): string {
 
 function isNullEthValue(value: string): boolean {
   return value == '0x0000000000000000000000000000000000000000000000000000000000000001'
+}
+
+export function i32ToString (value: i32): string {
+  return BigInt.fromI32(value).toString()
+}
+
+// formats label to semantic versioning style
+export function formatLabel (label: i32[]): string {
+  return `${i32ToString(label.at(0))}.${i32ToString(label.at(1))}.${i32ToString(label.at(2))}`
+}
+
+export function addVersion(
+  id: string,
+  label: string,
+  tokenContractId: string,
+  imageUrl: string,
+  imageHash: string,
+  animationUrl: string,
+  animationHash: string,
+  createdAtTimestamp: BigInt,
+  createdAtBlockNumber: BigInt
+): void {
+
+  // create urlHash pair for image
+  const image = addUrlHashPair(
+    id,
+    "image",
+    imageUrl,
+    imageHash,
+    createdAtTimestamp,
+    createdAtBlockNumber
+  )
+
+  // create urlHash pair for animation
+  const animation = addUrlHashPair(
+    id,
+    "animation",
+    animationUrl,
+    animationHash,
+    createdAtTimestamp,
+    createdAtBlockNumber
+  )
+
+  let version = findOrCreateVersion(id)
+
+  version.id = id
+  version.label = label
+  version.tokenContract = tokenContractId
+  version.createdAtTimestamp = createdAtTimestamp
+  version.createdAtBlockNumber = createdAtBlockNumber
+  version.image = image.id
+  version.animation = animation.id
+
+  version.save()
+}
+
+export function addUrlHashPair(
+  versionId: string,
+  type: string, // TODO: enum check?
+  url: string,
+  hash: string,
+  createdAtTimestamp: BigInt,
+  createdAtBlockNumber: BigInt
+): UrlHashPair {
+  let urlHashPair = findOrCreateUrlHashPair(`${versionId}-${type}`)
+  urlHashPair.id = `${versionId}-${type}`
+  urlHashPair.version = versionId
+  urlHashPair.type = type
+  urlHashPair.createdAtTimestamp = createdAtTimestamp
+  urlHashPair.createdAtBlockNumber = createdAtBlockNumber
+  urlHashPair.url = url
+  urlHashPair.hash = hash
+
+  urlHashPair.save()
+
+  return urlHashPair
 }

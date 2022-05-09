@@ -6,7 +6,7 @@ import {
   VersionURLUpdated,
   Approval,
   ApprovedMinter
-} from '../types/templates/SingleEditionMintable/SingleEditionMintable'
+} from '../types/templates/SeededSingleEditionMintable/SeededSingleEditionMintable'
 
 import {
   approvedMinterHandler,

@@ -7,7 +7,9 @@ import {
   EditionsAuction__factory,
   SingleEditionMintableCreator__factory,
   SingleEditionMintable__factory,
-  WETH__factory
+  WETH__factory,
+  SeededSingleEditionMintable,
+  SeededSingleEditionMintable__factory
 } from "../typechain"
 
 import { SignerWithAddress } from "@nomiclabs/hardhat-ethers/signers";
@@ -50,6 +52,13 @@ enum urlKeys {
   animation
 }
 
+export interface Version {
+  urls: {
+    url: string;
+    sha256hash: string;
+  }[];
+  label: Label;
+}
 
 const defaultVersion = () => {
   return {
@@ -66,8 +75,29 @@ const defaultVersion = () => {
       }
     ],
     label: [0,0,1] as Label
-  }
+  } as Version
 }
+
+enum Implementation {
+  editions,
+  seededEditions
+}
+
+const editionData = (
+  name: string,
+  symbol: string,
+  description: string,
+  version: Version,
+  editionSize: BigNumberish,
+  royaltyBPS: BigNumberish
+) => ({
+  name,
+  symbol,
+  description,
+  version,
+  editionSize,
+  royaltyBPS
+})
 
 // Hack to get event args
 export const getEventArguments = async (tx: ContractTransaction, eventName: string) => {
@@ -78,15 +108,18 @@ export const getEventArguments = async (tx: ContractTransaction, eventName: stri
 
 const createEdition = async (signer: SignerWithAddress, SingleEditonCreator: SingleEditionMintableCreator) => {
   const transaction = await SingleEditonCreator.connect(signer).createEdition(
-    "Testing Token",
-    "TEST",
-    "This is a testing token for all",
-    defaultVersion(),
-    10,
-    10
+    editionData(
+      "Testing Token",
+      "TEST",
+      "This is a testing token for all",
+      defaultVersion(),
+      10,
+      10
+    ),
+    Implementation.editions
   );
   const [id, creator, editionSize, editionContractAddress] = await getEventArguments(transaction, "CreatedEdition")
-  const editionResult = await SingleEditonCreator.getEditionAtId(id)
+  const editionResult = await SingleEditonCreator.getEditionAtId(id, Implementation.editions)
   const SingleEditionContract = (await ethers.getContractAt(
     SingleEditionMintable__factory.abi,
     editionResult
@@ -95,15 +128,41 @@ const createEdition = async (signer: SignerWithAddress, SingleEditonCreator: Sin
   return SingleEditionContract
 }
 
+const createSeededEdition = async (signer: SignerWithAddress, SingleEditonCreator: SingleEditionMintableCreator) => {
+  const transaction = await SingleEditonCreator.connect(signer).createEdition(
+    editionData(
+      "Testing Seeded Token",
+      "SEED TEST",
+      "This is a testing seeded token for all",
+      defaultVersion(),
+      10,
+      10
+    ),
+    Implementation.seededEditions
+  );
+  const [id, creator, editionSize, editionContractAddress] = await getEventArguments(transaction, "CreatedEdition")
+  console.log(id)
+  const editionResult = await SingleEditonCreator.getEditionAtId(id, Implementation.seededEditions)
+  const SeededSingleEditionContract = (await ethers.getContractAt(
+    SeededSingleEditionMintable__factory.abi,
+    editionResult
+  )) as SeededSingleEditionMintable;
+
+  return SeededSingleEditionContract
+}
+
 const createAuction = async (
   signer: SignerWithAddress,
-  SingleEdition: SingleEditionMintable,
+  SingleEdition: SingleEditionMintable | SeededSingleEditionMintable,
   EditionsAuction: EditionsAuction,
   erc20: WETH,
   options = {}
 ) => {
   const defaults = {
-    editionContract: SingleEdition.address,
+    editionContract: {
+      id: SingleEdition.address,
+      implementation: Implementation.editions
+    },
     startTime: Math.floor((Date.now() / 1000)), // starts straight away
     duration: 60 * 8, // 8 minutes
     startPrice: ethers.utils.parseEther("1.0"),
@@ -186,7 +245,7 @@ const run = async () => {
 
   // purchase nft
   let salePrice = await EditionsAuction.getSalePrice(auctionId)
-  tx = await EditionsAuction.connect(collector).purchase(auctionId, salePrice)
+  tx = await EditionsAuction.connect(collector)["purchase(uint256,uint256)"](auctionId, salePrice)
   await tx.wait()
   console.log(`${count.increment()} collector purchased NFT`, tx.hash)
 
@@ -229,7 +288,7 @@ const run = async () => {
 
   // purchase another nft
   salePrice = await EditionsAuction.getSalePrice(auctionId)
-  tx = await EditionsAuction.connect(collector).purchase(auctionId, salePrice)
+  tx = await EditionsAuction.connect(collector)["purchase(uint256,uint256)"](auctionId, salePrice)
   await tx.wait()
   console.log(`${count.increment()} collector purchased NFT id(2)`, tx.hash)
 
@@ -237,6 +296,35 @@ const run = async () => {
   tx = await SingleEditionMintable.connect(collector).burn(2)
   await tx.wait()
   console.log(`${count.increment()} collector burned NFT id(2)`, tx.hash)
+
+  // add seeded edition and auction
+  const SeededSingleEditionMintable = await createSeededEdition(creator, SingleEditonCreator)
+  tx = await createAuction(
+    creator,
+    SeededSingleEditionMintable,
+    EditionsAuction,
+    WETH,
+    { editionContract: {
+      id: SeededSingleEditionMintable.address,
+      implementation: Implementation.seededEditions
+    }}
+  )
+  console.log(`${count.increment()} creator created seeded edition and put it up for auction`, tx.hash)
+  const [seededAuctionId] = await getEventArguments(tx, "AuctionCreated")
+
+  // wait 2 sec for auction to start
+  await delay(2000)
+
+  // approve auction for minting
+  tx = await SeededSingleEditionMintable.connect(creator).setApprovedMinter(EditionsAuction.address, true)
+  console.log(`${count.increment()} creator approved editionsAuction to mint`, tx.hash)
+  tx.wait()
+
+  // purchase seeded nft
+  salePrice = await EditionsAuction.getSalePrice(seededAuctionId)
+  tx = await EditionsAuction.connect(collector)["purchase(uint256,uint256,uint256)"](seededAuctionId, salePrice, 5)
+  await tx.wait()
+  console.log(`${count.increment()} collector purchased seeded NFT seed(5)`, tx.hash)
 }
 
 run();

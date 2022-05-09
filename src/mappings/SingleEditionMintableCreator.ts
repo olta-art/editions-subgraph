@@ -1,13 +1,15 @@
 import {
-  SingleEditionMintable
+  SingleEditionMintable,
+  SeededSingleEditionMintable
 } from '../../types/templates'
 import {
   CreatedEdition,
 } from '../../types/SingleEditionMintableCreator/SingleEditionMintableCreator'
 import {
-  findOrCreateTokenContract, findOrCreateUser
+  findOrCreateTokenContract,
+  findOrCreateUser
 } from "../helpers"
-
+import { tokenContractImplementations } from '../constants'
 import { log, DataSourceContext, BigInt } from '@graphprotocol/graph-ts'
 
 export function handleCreatedEdition (event: CreatedEdition): void {
@@ -15,14 +17,24 @@ export function handleCreatedEdition (event: CreatedEdition): void {
   let tokenContractAddress = event.params.editionContractAddress.toHexString()
   log.info(`Starting: handleCreatedEdition`, [tokenContractAddress])
 
-  // add address to context so can be retrieved in singleEditionMintable.ts
+  // create new context
   let context = new DataSourceContext()
+  // add address to context so can be retrieved
   context.setString('tokenContract', tokenContractAddress)
 
-  SingleEditionMintable.createWithContext(
-    event.params.editionContractAddress,
-    context
-  )
+  if("editions" == tokenContractImplementations[event.params.implementation]) {
+    SingleEditionMintable.createWithContext(
+      event.params.editionContractAddress,
+      context
+    )
+  }
+
+  if("seededEditions" == tokenContractImplementations[event.params.implementation]) {
+    SeededSingleEditionMintable.createWithContext(
+      event.params.editionContractAddress,
+      context
+    )
+  }
 
   // create tokenContract entity
   let tokenContract = findOrCreateTokenContract(tokenContractAddress)
@@ -30,6 +42,7 @@ export function handleCreatedEdition (event: CreatedEdition): void {
   tokenContract.id = tokenContractAddress
   tokenContract.editionSize =  event.params.editionSize
   tokenContract.tokenContractId = event.params.editionId
+  tokenContract.implementation = tokenContractImplementations[event.params.implementation]
   tokenContract.createdAtBlockNumber = event.block.number
   tokenContract.createdAtTimestamp = event.block.timestamp
   tokenContract.totalMinted =  BigInt.fromI32(0)
@@ -40,4 +53,6 @@ export function handleCreatedEdition (event: CreatedEdition): void {
   tokenContract.creator = creator.id
 
   tokenContract.save()
+
+  log.info(`Completed: handleCreatedEdition`, [tokenContractAddress])
 }

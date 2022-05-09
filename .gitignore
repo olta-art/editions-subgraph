@@ -77,4 +77,4 @@ bin/
 typechain
 deployments/localhost
 cache
-/subgraph.yaml
+subgraph.yaml
