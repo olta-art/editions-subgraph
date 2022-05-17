@@ -60,7 +60,7 @@ dataSources:
 templates:
   - name: SingleEditionMintable
     kind: ethereum/contract
-    network: mainnet
+    network: {{ network }}
     source:
       abi: SingleEditionMintable
     mapping:
@@ -93,7 +93,7 @@ templates:
       file: ./src/singleEditionMintable.ts
   - name: SeededSingleEditionMintable
     kind: ethereum/contract
-    network: mainnet
+    network: {{ network }}
     source:
       abi: SeededSingleEditionMintable
     mapping:

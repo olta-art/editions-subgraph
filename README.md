@@ -4,18 +4,29 @@ Aims:
   1. to index all the necessary smart contract states for olta's editions and editions auction
   2. to be accessible from within an olta artwork so that the nft's can be self aware
 
-This is a work in progress and not yet deployed if you would like to contribute please feel to reach out on [Olta's discord](https://discord.gg/wnj2qW8pH6)
+This is a work in progress and not yet deployed if you would like to contribute please feel to reach out on [Olta's discord](https://discord.gg/wnj2qW8pH6) pull requests are very welcome.
 
 ## TODO 🛠️
 
 - [ ] tests
-- [ ] mock up a front end (in progress)
-- [ ] mock up a test artwork (in progress)
-- [ ] mumbai deployment
+- [x] mumbai deployment
 - [ ] polygon deployment
 
 ---
 
+## Mumbai Deployment
+
+**Warning: this subgraph indexes smart-contracts that are still in development, it is likely there will be breaking changes**
+
+Explore the mumbai subgraph [here](https://api.thegraph.com/subgraphs/name/olta-art/olta-editions-mumbai/graphql)
+
+**hint:**
+
+    clicking the explorer button in the top left allows you to quickly construct queries. The docs button on the top right gives you more detailed explanation of the schema
+
+deployment details and logs can be found [here](https://thegraph.com/hosted-service/subgraph/olta-art/olta-editions-mumbai)
+
+---
 ## How to setup locally
 
 The contracts are still WIP and because of that I have made a setup that allows to pull the abis from the repos. This is likely to be simplified once contracts are solid.
@@ -32,6 +43,8 @@ There is a number of generated folders to be able to test and deploy to the loca
 - run `yarn start-local-node` to start a local hardhat node. this creates a deployments/localhost folder with all the needed abis
 
 - run `yarn typechain` generates `typechain` for ethers.js to work with (used for tests and seeding scripts) uses abis from deployments/localhost
+
+- run `yarn prepare:local` to generate the subgraph.yaml from subgraph.template.yaml using the config/50.json
 
 - run `yarn codegen` generates `types` for the graph
 
