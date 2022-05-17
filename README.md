@@ -33,6 +33,8 @@ There is a number of generated folders to be able to test and deploy to the loca
 
 - run `yarn typechain` generates `typechain` for ethers.js to work with (used for tests and seeding scripts) uses abis from deployments/localhost
 
+- run `yarn prepare:local` to generate the subgraph.yaml from subgraph.template.yaml using the config/50.json
+
 - run `yarn codegen` generates `types` for the graph
 
 ### 3. start local graph node
