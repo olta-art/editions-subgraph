@@ -6,6 +6,7 @@ export const tokenContractImplementations = [
 
 // url types on versions of token contracts
 export const urlTypes = [
-  "image",
-  "animation"
+  "Image",
+  "Animation",
+  "PatchNotes"
 ]

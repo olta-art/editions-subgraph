@@ -246,6 +246,8 @@ export function versionAddedHandler<T extends VersionAdded>(event: T, context: D
       callResult.value.value1.toHexString(),
       callResult.value.value2,
       callResult.value.value3.toHexString(),
+      callResult.value.value4,
+      callResult.value.value5.toHexString(),
       event.block.timestamp,
       event.block.number
     )
@@ -286,6 +288,8 @@ export function versionAddedHandler<T extends VersionAdded>(event: T, context: D
       callResult.value.value1.toHexString(),
       callResult.value.value2,
       callResult.value.value3.toHexString(),
+      callResult.value.value4,
+      callResult.value.value5.toHexString(),
       event.block.timestamp,
       event.block.number
     )
