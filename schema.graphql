@@ -77,9 +77,10 @@ type TokenContractMinterApproval @entity {
   status: Boolean!
 }
 
-enum urlType {
-  image,
-  animation
+enum UrlType {
+  Image,
+  Animation,
+  PatchNotes
 }
 
 type UrlHashPair @entity{
@@ -93,7 +94,7 @@ type UrlHashPair @entity{
   hash: String!
 
   "The type of url"
-  type: urlType!
+  type: UrlType!
 
   "The Version for "
   version: Version!
@@ -152,6 +153,9 @@ type Version @entity {
 
   "The url and hash pair of animation url"
   animation: UrlHashPair!
+
+  "The url and hash pair of the patch notes url"
+  patchNotes: UrlHashPair!
 
   "The timestamp of the block the Purchase was created in"
   createdAtTimestamp: BigInt!
