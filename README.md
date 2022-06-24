@@ -58,9 +58,11 @@ from within the graph-node repo
 
 - start graph node
   `cd docker`
-  `docker-compose up`
+  `docker-compose up --force-recreate`
 
-- When using hardhat the blockhashes change so I found I needed to delete docker/data if the hardhat node is restarted
+  The `--force-recreate`` tag should mean removing the /data folder is not needed.
+
+- If however you still run into problems with left over data and errors such as "ERRO the genesis block hash for chain mainnet has changed from..." try deleting the generated data folder and restarting the node.
   `cd docker`
   `sudo rm -r -f data`
 
