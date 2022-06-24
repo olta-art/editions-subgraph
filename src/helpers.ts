@@ -286,6 +286,8 @@ export function addVersion(
   imageHash: string,
   animationUrl: string,
   animationHash: string,
+  patchNotesUrl: string,
+  patchNotesHash: string,
   createdAtTimestamp: BigInt,
   createdAtBlockNumber: BigInt
 ): void {
@@ -293,7 +295,7 @@ export function addVersion(
   // create urlHash pair for image
   const image = addUrlHashPair(
     id,
-    "image",
+    "Image",
     imageUrl,
     imageHash,
     createdAtTimestamp,
@@ -303,9 +305,19 @@ export function addVersion(
   // create urlHash pair for animation
   const animation = addUrlHashPair(
     id,
-    "animation",
+    "Animation",
     animationUrl,
     animationHash,
+    createdAtTimestamp,
+    createdAtBlockNumber
+  )
+
+  // create urlHash pair for animation
+  const patchNotes = addUrlHashPair(
+    id,
+    "PatchNotes",
+    patchNotesUrl,
+    patchNotesHash,
     createdAtTimestamp,
     createdAtBlockNumber
   )
@@ -319,6 +331,7 @@ export function addVersion(
   version.createdAtBlockNumber = createdAtBlockNumber
   version.image = image.id
   version.animation = animation.id
+  version.patchNotes = patchNotes.id
 
   version.save()
 }
