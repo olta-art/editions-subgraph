@@ -11,7 +11,7 @@ import {
   User,
   EditionsAuction,
   Currency,
-  Token,
+  Edition,
   Project,
   Version,
   UrlHashPair,
@@ -50,15 +50,15 @@ export function findOrCreateCurrency(id: string): Currency {
 }
 
 
-export function findOrCreateToken(id: string): Token {
-  let token = Token.load(id)
+export function findOrCreateEdition(id: string): Edition {
+  let edition = Edition.load(id)
 
-  if(token == null){
-    token = new Token(id)
-    token.save()
+  if(edition == null){
+    edition = new Edition(id)
+    edition.save()
   }
 
-  return token as Token
+  return edition as Edition
 }
 
 export function findOrCreateVersion(id: string): Version {
