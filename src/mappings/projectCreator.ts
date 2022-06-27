@@ -15,7 +15,7 @@ import { log, DataSourceContext, BigInt } from '@graphprotocol/graph-ts'
 export function handleCreatedProject (event: CreatedEdition): void {
 
   let projectAddress = event.params.editionContractAddress.toHexString()
-  log.info(`Starting: handleCreatedEdition`, [projectAddress])
+  log.info(`Starting: handleCreatedProject`, [projectAddress])
 
   // create new context
   let context = new DataSourceContext()
@@ -54,5 +54,5 @@ export function handleCreatedProject (event: CreatedEdition): void {
 
   project.save()
 
-  log.info(`Completed: handleCreatedEdition`, [projectAddress])
+  log.info(`Completed: handleCreatedProject`, [projectAddress])
 }
