@@ -1,7 +1,7 @@
 // token contract implementations to match schema
 export const projectImplementations = [
-  "editions",
-  "seededEditions"
+  "Standard",
+  "Seeded"
 ]
 
 // url types on versions of token contracts
