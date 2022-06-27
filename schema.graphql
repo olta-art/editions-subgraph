@@ -1,6 +1,6 @@
 enum ProjectImplementation {
-  editions,
-  seededEditions
+  Standard,
+  Seeded
 }
 
 type Project @entity {
