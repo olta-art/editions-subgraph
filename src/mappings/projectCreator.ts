@@ -22,14 +22,15 @@ export function handleCreatedProject (event: CreatedEdition): void {
   // add address to context so can be retrieved
   context.setString('project', projectAddress)
 
-  if("editions" == projectImplementations[event.params.implementation]) {
+  // create mapping with context based on project implementation
+
+  if(projectImplementations[event.params.implementation] == "Standard") {
     SingleEditionMintable.createWithContext(
       event.params.editionContractAddress,
       context
     )
   }
-
-  if("seededEditions" == projectImplementations[event.params.implementation]) {
+  if(projectImplementations[event.params.implementation] == "Seeded") {
     SeededSingleEditionMintable.createWithContext(
       event.params.editionContractAddress,
       context
