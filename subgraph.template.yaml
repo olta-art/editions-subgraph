@@ -70,7 +70,7 @@ templates:
       entities:
         - Project
         - ProjectMinterApproval
-        - Token
+        - Edition
         - Version
         - UrlHashPair
         - UrlUpdate
@@ -103,7 +103,7 @@ templates:
       entities:
         - Project
         - ProjectMinterApproval
-        - Token
+        - Edition
         - Version
         - UrlHashPair
         - UrlUpdate
