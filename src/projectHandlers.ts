@@ -111,12 +111,12 @@ function mintHandler<T extends Transfer>(event: T, context: DataSourceContext): 
   // call tokenURI from project
   let projectAddress = Address.fromString(context.getString('project'))
 
-  if(project.implementation == "editions"){
+  if(project.implementation == "Standard"){
     let singleEditionMintable = SingleEditionMintableContract.bind(projectAddress)
     token.tokenURI = singleEditionMintable.tokenURI(event.params.tokenId)
   }
 
-  if(project.implementation == "seededEditions"){
+  if(project.implementation == "Seeded"){
     let seededSingleEditionMintable = SeededSingleEditionMintable.bind(projectAddress)
     token.tokenURI = seededSingleEditionMintable.tokenURI(event.params.tokenId)
     token.seed = seededSingleEditionMintable.seedOfTokens(event.params.tokenId)
@@ -207,7 +207,7 @@ export function versionAddedHandler<T extends VersionAdded>(event: T, context: D
   // update token contract
   let project = findOrCreateProject(projectAddress)
 
-  if(project.implementation == "editions") {
+  if(project.implementation == "Standard") {
      // call getURIs of version to fetch uris for specifc for label
     const singleEditionMintableContract = SingleEditionMintableContract.bind(
       Address.fromString(projectAddress)
@@ -253,7 +253,7 @@ export function versionAddedHandler<T extends VersionAdded>(event: T, context: D
     )
   }
 
-  if(project.implementation == "seededEditions"){
+  if(project.implementation == "Seeded"){
     // call getURIs of version to fetch uris for specifc for label
     const seededSingleEditionMintable = SeededSingleEditionMintable.bind(
       Address.fromString(projectAddress)
