@@ -12,12 +12,12 @@ import {
   EditionsAuction,
   Currency,
   Token,
-  TokenContract,
+  Project,
   Version,
   UrlHashPair,
   UrlUpdate,
   Transfer,
-  TokenContractMinterApproval
+  ProjectMinterApproval
 } from '../types/schema'
 
 import { ethereum } from '@graphprotocol/graph-ts/index'
@@ -94,15 +94,15 @@ export function findOrCreateUrlUpdate(id: string): UrlUpdate {
   return urlUpdate as UrlUpdate
 }
 
-export function findOrCreateTokenContract(id: string): TokenContract {
-  let tokenContract = TokenContract.load(id)
+export function findOrCreateProject(id: string): Project {
+  let project = Project.load(id)
 
-  if(tokenContract == null){
-    tokenContract = new TokenContract(id)
-    tokenContract.save()
+  if(project == null){
+    project = new Project(id)
+    project.save()
   }
 
-  return tokenContract as TokenContract
+  return project as Project
 }
 
 export function findOrCreateTransfer(id: string): Transfer {
@@ -116,21 +116,21 @@ export function findOrCreateTransfer(id: string): Transfer {
   return transfer as Transfer
 }
 
-export function findOrCreateTokenContractMinterApproval(id: string): TokenContractMinterApproval {
-  let tokenContractMinterApproval = TokenContractMinterApproval.load(id)
+export function findOrCreateProjectMinterApproval(id: string): ProjectMinterApproval {
+  let projectMinterApproval = ProjectMinterApproval.load(id)
 
-  if(tokenContractMinterApproval == null){
-    tokenContractMinterApproval = new TokenContractMinterApproval(id)
-    tokenContractMinterApproval.save()
+  if(projectMinterApproval == null){
+    projectMinterApproval = new ProjectMinterApproval(id)
+    projectMinterApproval.save()
   }
 
-  return tokenContractMinterApproval as TokenContractMinterApproval
+  return projectMinterApproval as ProjectMinterApproval
 }
 
 export function createEditionsAuction(
   id: string,
   transactionHash: string,
-  tokenContract: TokenContract,
+  project: Project,
   duration: BigInt,
   startTimestamp: BigInt,
   endTimestamp: BigInt,
@@ -148,7 +148,7 @@ export function createEditionsAuction(
 
   editionsAuction.id = id
   editionsAuction.transactionHash = transactionHash
-  editionsAuction.tokenContract = tokenContract.id
+  editionsAuction.project = project.id
   editionsAuction.approved = false
   editionsAuction.duration = duration
   editionsAuction.startTimestamp = startTimestamp
@@ -281,7 +281,7 @@ export function formatLabel (label: i32[]): string {
 export function addVersion(
   id: string,
   label: string,
-  tokenContractId: string,
+  projectId: string,
   imageUrl: string,
   imageHash: string,
   animationUrl: string,
@@ -326,7 +326,7 @@ export function addVersion(
 
   version.id = id
   version.label = label
-  version.tokenContract = tokenContractId
+  version.project = projectId
   version.createdAtTimestamp = createdAtTimestamp
   version.createdAtBlockNumber = createdAtBlockNumber
   version.image = image.id
