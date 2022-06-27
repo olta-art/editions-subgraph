@@ -18,12 +18,12 @@ import {
 
 import {
   findOrCreateToken,
-  findOrCreateTokenContract,
+  findOrCreateProject,
   findOrCreateUrlHashPair,
   findOrCreateUrlUpdate,
   findOrCreateUser,
   findOrCreateTransfer,
-  findOrCreateTokenContractMinterApproval,
+  findOrCreateProjectMinterApproval,
   zeroAddress,
   formatLabel,
   addVersion,
@@ -36,16 +36,16 @@ import {
 import { log, Address, BigInt, DataSourceContext } from '@graphprotocol/graph-ts'
 
 export function approvedMinterHandler<T extends ApprovedMinter>(event: T, context: DataSourceContext): void{
-  let tokenContractAddress = context.getString('tokenContract')
+  let projectAddress = context.getString('project')
   let minterAddress = event.params.minter.toHexString()
   let status = event.params.approved
 
-  let minterApprovalId = `${minterAddress}-${tokenContractAddress}`
-  let minterApproval = findOrCreateTokenContractMinterApproval(minterApprovalId)
+  let minterApprovalId = `${minterAddress}-${projectAddress}`
+  let minterApproval = findOrCreateProjectMinterApproval(minterApprovalId)
 
   let minter = findOrCreateUser(minterAddress)
 
-  minterApproval.tokenContract = tokenContractAddress
+  minterApproval.project = projectAddress
   minterApproval.user = minter.id
   minterApproval.status = status
 
@@ -53,7 +53,7 @@ export function approvedMinterHandler<T extends ApprovedMinter>(event: T, contex
 }
 
 export function transferHandler<T extends Transfer>(event: T, context: DataSourceContext): void {
-  const tokenId = `${context.getString('tokenContract')}-${event.params.tokenId.toString()}`
+  const tokenId = `${context.getString('project')}-${event.params.tokenId.toString()}`
   log.info(`Starting handler for Transfer for token {}`, [tokenId])
 
   // create transfer
@@ -94,30 +94,30 @@ export function transferHandler<T extends Transfer>(event: T, context: DataSourc
 }
 
 function mintHandler<T extends Transfer>(event: T, context: DataSourceContext): void {
-  const id = `${context.getString('tokenContract')}-${event.params.tokenId.toString()}`
+  const id = `${context.getString('project')}-${event.params.tokenId.toString()}`
   log.info(`Starting handler for Mint for token {}`, [id])
   let token = findOrCreateToken(id)
-  let tokenContract = findOrCreateTokenContract(context.getString('tokenContract'))
+  let project = findOrCreateProject(context.getString('project'))
 
   token.id = id
   token.editionNumber = event.params.tokenId
-  token.tokenContract = context.getString('tokenContract')
+  token.project = context.getString('project')
   token.owner = findOrCreateUser(event.params.to.toHexString()).id
   token.prevOwner = zeroAddress
   token.createdAtTransactionHash = event.transaction.hash.toHexString()
   token.createdAtTimestamp = event.block.timestamp
   token.createdAtBlockNumber = event.block.number
 
-  // call tokenURI from tokenContract
-  let tokenContractAddress = Address.fromString(context.getString('tokenContract'))
+  // call tokenURI from project
+  let projectAddress = Address.fromString(context.getString('project'))
 
-  if(tokenContract.implementation == "editions"){
-    let singleEditionMintable = SingleEditionMintableContract.bind(tokenContractAddress)
+  if(project.implementation == "editions"){
+    let singleEditionMintable = SingleEditionMintableContract.bind(projectAddress)
     token.tokenURI = singleEditionMintable.tokenURI(event.params.tokenId)
   }
 
-  if(tokenContract.implementation == "seededEditions"){
-    let seededSingleEditionMintable = SeededSingleEditionMintable.bind(tokenContractAddress)
+  if(project.implementation == "seededEditions"){
+    let seededSingleEditionMintable = SeededSingleEditionMintable.bind(projectAddress)
     token.tokenURI = seededSingleEditionMintable.tokenURI(event.params.tokenId)
     token.seed = seededSingleEditionMintable.seedOfTokens(event.params.tokenId)
   }
@@ -125,9 +125,9 @@ function mintHandler<T extends Transfer>(event: T, context: DataSourceContext): 
   token.save()
 
   // update token contract totalMint and totalSupply count
-  tokenContract.totalMinted = tokenContract.totalMinted.plus(BigInt.fromI32(1))
-  tokenContract.totalSupply = tokenContract.totalSupply.plus(BigInt.fromI32(1))
-  tokenContract.save()
+  project.totalMinted = project.totalMinted.plus(BigInt.fromI32(1))
+  project.totalSupply = project.totalSupply.plus(BigInt.fromI32(1))
+  project.save()
 
   // TODO: test/research to see if this ever gets missed as purchese needs to be indexed before
   // index token to purchase based on tx hash
@@ -140,7 +140,7 @@ function mintHandler<T extends Transfer>(event: T, context: DataSourceContext): 
 }
 
 function burnHandler<T extends Transfer>(event: T, context: DataSourceContext): void {
-  const id = `${context.getString('tokenContract')}-${event.params.tokenId.toString()}`
+  const id = `${context.getString('project')}-${event.params.tokenId.toString()}`
   log.info(`Starting handler for Burn for token {}`, [id])
   let token = findOrCreateToken(id)
 
@@ -152,10 +152,10 @@ function burnHandler<T extends Transfer>(event: T, context: DataSourceContext): 
   token.save()
 
   // update token contract totalBurned and totalSupply count
-  let tokenContract = findOrCreateTokenContract(context.getString('tokenContract'))
-  tokenContract.totalBurned = tokenContract.totalBurned.plus(BigInt.fromI32(1))
-  tokenContract.totalSupply = tokenContract.totalSupply.minus(BigInt.fromI32(1))
-  tokenContract.save()
+  let project = findOrCreateProject(context.getString('project'))
+  project.totalBurned = project.totalBurned.plus(BigInt.fromI32(1))
+  project.totalSupply = project.totalSupply.minus(BigInt.fromI32(1))
+  project.save()
 
   log.info(`Completed handler for Burn for token {}`, [id])
 }
@@ -165,7 +165,7 @@ export function approvalHandler<T extends Approval>(event: T, context: DataSourc
   let approvedAddr = event.params.approved.toHexString()
   let tokenId = event.params.tokenId.toString()
 
-  const id = `${context.getString('tokenContract')}-${tokenId}`
+  const id = `${context.getString('project')}-${tokenId}`
 
   log.info(
     `Starting handler for Approval Event of tokenId: {}, owner: {}, approved: {}`,
@@ -199,18 +199,18 @@ function addTokenToPurchase(tokenId: string,txHash: string): void {
 }
 
 export function versionAddedHandler<T extends VersionAdded>(event: T, context: DataSourceContext): void {
-  let tokenContractAddress = context.getString('tokenContract')
+  let projectAddress = context.getString('project')
 
-  let id = `${context.getString('tokenContract')}-${formatLabel(event.params.label)}`
+  let id = `${context.getString('project')}-${formatLabel(event.params.label)}`
   log.info(`Starting handler for VersionAdded for token {}`, [id])
 
   // update token contract
-  let tokenContract = findOrCreateTokenContract(tokenContractAddress)
+  let project = findOrCreateProject(projectAddress)
 
-  if(tokenContract.implementation == "editions") {
+  if(project.implementation == "editions") {
      // call getURIs of version to fetch uris for specifc for label
     const singleEditionMintableContract = SingleEditionMintableContract.bind(
-      Address.fromString(tokenContractAddress)
+      Address.fromString(projectAddress)
     )
 
     // HACK(george): running into a type mismatch error with the following
@@ -226,22 +226,22 @@ export function versionAddedHandler<T extends VersionAdded>(event: T, context: D
     }
 
     // handle token contract initialization
-    if(!tokenContract.lastAddedVersion){
-      tokenContract.name = singleEditionMintableContract.name()
-      tokenContract.symbol = singleEditionMintableContract.symbol()
-      tokenContract.description = singleEditionMintableContract.description()
-      tokenContract.creatorRoyaltyBPS = singleEditionMintableContract.royaltyBPS()
+    if(!project.lastAddedVersion){
+      project.name = singleEditionMintableContract.name()
+      project.symbol = singleEditionMintableContract.symbol()
+      project.description = singleEditionMintableContract.description()
+      project.creatorRoyaltyBPS = singleEditionMintableContract.royaltyBPS()
     }
 
     // update latest versions
-    tokenContract.lastAddedVersion = id
+    project.lastAddedVersion = id
 
-    tokenContract.save()
+    project.save()
 
     addVersion(
       id,
       formatLabel(event.params.label),
-      tokenContract.id,
+      project.id,
       callResult.value.value0,
       callResult.value.value1.toHexString(),
       callResult.value.value2,
@@ -253,10 +253,10 @@ export function versionAddedHandler<T extends VersionAdded>(event: T, context: D
     )
   }
 
-  if(tokenContract.implementation == "seededEditions"){
+  if(project.implementation == "seededEditions"){
     // call getURIs of version to fetch uris for specifc for label
     const seededSingleEditionMintable = SeededSingleEditionMintable.bind(
-      Address.fromString(tokenContractAddress)
+      Address.fromString(projectAddress)
     )
 
     // HACK(george): same hack as used above for singlineEditionMintable
@@ -268,22 +268,22 @@ export function versionAddedHandler<T extends VersionAdded>(event: T, context: D
     }
 
     // handle token contract initialization
-    if(!tokenContract.lastAddedVersion){
-      tokenContract.name = seededSingleEditionMintable.name()
-      tokenContract.symbol = seededSingleEditionMintable.symbol()
-      tokenContract.description = seededSingleEditionMintable.description()
-      tokenContract.creatorRoyaltyBPS = seededSingleEditionMintable.royaltyBPS()
+    if(!project.lastAddedVersion){
+      project.name = seededSingleEditionMintable.name()
+      project.symbol = seededSingleEditionMintable.symbol()
+      project.description = seededSingleEditionMintable.description()
+      project.creatorRoyaltyBPS = seededSingleEditionMintable.royaltyBPS()
     }
 
     // update latest versions
-    tokenContract.lastAddedVersion = id
+    project.lastAddedVersion = id
 
-    tokenContract.save()
+    project.save()
 
     addVersion(
       id,
       formatLabel(event.params.label),
-      tokenContract.id,
+      project.id,
       callResult.value.value0,
       callResult.value.value1.toHexString(),
       callResult.value.value2,
@@ -301,7 +301,7 @@ export function versionAddedHandler<T extends VersionAdded>(event: T, context: D
 export function versionURLUpdatedHandler<T extends VersionURLUpdated>(event: T, context: DataSourceContext): void{
   // get urlHashPair
   let urlType = urlTypes[event.params.index]
-  let id = `${context.getString('tokenContract')}-${formatLabel(event.params.label)}-${urlType}`
+  let id = `${context.getString('project')}-${formatLabel(event.params.label)}-${urlType}`
   let urlHashPair = findOrCreateUrlHashPair(id)
 
   // create urlUpdate
@@ -312,8 +312,8 @@ export function versionURLUpdatedHandler<T extends VersionURLUpdated>(event: T, 
   urlUpdate.transactionHash = event.transaction.hash.toHexString()
   urlUpdate.from = urlHashPair.url
   urlUpdate.to = event.params.url
-  urlUpdate.tokenContract = context.getString('tokenContract')
-  urlUpdate.version = `${context.getString('tokenContract')}-${formatLabel(event.params.label)}`
+  urlUpdate.project = context.getString('project')
+  urlUpdate.version = `${context.getString('project')}-${formatLabel(event.params.label)}`
   urlUpdate.urlHashPair = urlHashPair.id
   urlUpdate.createdAtTimestamp = event.block.timestamp
   urlUpdate.createdAtBlockNumber = event.block.number
