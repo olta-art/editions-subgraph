@@ -1,16 +1,16 @@
-enum TokenContractImplementation {
+enum ProjectImplementation {
   editions,
   seededEditions
 }
 
-type TokenContract @entity {
-  "The address of the token contract"
+type Project @entity {
+  "The smart-contract address of the project"
   id: ID!
 
-  "The id given by the tokenConractCreator"
-  tokenContractId: BigInt!
+  "The id number given by the projectCreator smart-contract"
+  projectId: BigInt!
 
-  "The creator of the tokenContract"
+  "The creator of the project"
   creator: User!
 
   "The total size of editions"
@@ -26,7 +26,7 @@ type TokenContract @entity {
   totalSupply: BigInt!
 
   "The addressess for approved minter"
-  approvedMinters: [TokenContractMinterApproval!]! @derivedFrom(field: "tokenContract")
+  approvedMinters: [ProjectMinterApproval!]! @derivedFrom(field: "project")
 
   # TODO: add latest version by label
   # "The latest version by label"
@@ -36,7 +36,7 @@ type TokenContract @entity {
   lastAddedVersion: Version
 
   "The history of urls and hashes"
-  versions: [Version!]! @derivedFrom(field: "tokenContract")
+  versions: [Version!]! @derivedFrom(field: "project")
 
   "The name of edition token"
   name: String
@@ -51,10 +51,10 @@ type TokenContract @entity {
   creatorRoyaltyBPS: BigInt
 
   "The implementation type of the contract"
-  implementation: TokenContractImplementation!
+  implementation: ProjectImplementation!
 
   "The tokens minted"
-  tokens: [Token!] @derivedFrom(field: "tokenContract")
+  tokens: [Token!] @derivedFrom(field: "project")
 
   "The timestamp of the block the Purchase was created in"
   createdAtTimestamp: BigInt!
@@ -63,15 +63,15 @@ type TokenContract @entity {
   createdAtBlockNumber: BigInt!
 }
 
-type TokenContractMinterApproval @entity {
-  "<userId-TokenContractId>"
+type ProjectMinterApproval @entity {
+  "<userId-projectId>"
   id: ID!
 
   "The user of the mint approval"
   user: User!
 
-  "The token contract of the mint approval"
-  tokenContract: TokenContract!
+  "The project of the mint approval"
+  project: Project!
 
   "The approval status of whether the user can mint tokens"
   status: Boolean!
@@ -122,8 +122,8 @@ type UrlUpdate @entity{
   "The previous url"
   to: String!
 
-  "The Token associated with the UrlUpdate"
-  tokenContract: TokenContract!
+  "The project associated with the UrlUpdate"
+  project: Project!
 
   "The Version associated with the UrlUpdate"
   version: Version!
@@ -142,8 +142,8 @@ type Version @entity {
   "<tokenAddress-versionLabel>"
   id: ID!
 
-  "The token the version is for"
-  tokenContract: TokenContract!
+  "The project of the version"
+  project: Project!
 
   "The semantic label of the version"
   label: String!
@@ -165,7 +165,7 @@ type Version @entity {
 }
 
 type Token @entity {
-  "<tokenContractAddress-editionNumber>"
+  "<projectSmartContractAddress-editionNumber>"
   id: ID!
 
   "The seed number of the token. null if not seeded"
@@ -174,8 +174,8 @@ type Token @entity {
   "The edition number of the token"
   editionNumber: BigInt!
 
-  "The token contract the token is derived from"
-  tokenContract: TokenContract!
+  "The project the token is derived from"
+  project: Project!
 
    "The current owner of the Media"
   owner: User!
@@ -233,16 +233,16 @@ type User @entity {
   # "Users that have been granted `ApprovalForAll` Media of the User's Collection"
   # authorizedUsers: [User!]
 
-  "The TokenContracts the User is approved to mint"
-  approvedToMint: [TokenContractMinterApproval!]! @derivedFrom(field: "user")
+  "The projects the user is approved to mint"
+  approvedToMint: [ProjectMinterApproval!]! @derivedFrom(field: "user")
 
   "The Tokens the User owns"
   collection: [Token!]! @derivedFrom(field: "owner")
 
-  # "The TokenContracts the User created"
-  creations: [TokenContract!]! @derivedFrom(field: "creator")
+  # "The projects the User created"
+  creations: [Project!]! @derivedFrom(field: "creator")
 
-  "The Purchaces made by the User"
+  "The Purchases made by the User"
   previousPurchases: [Purchase!]! @derivedFrom(field: "collector")
 }
 
@@ -284,7 +284,7 @@ type Purchase @entity {
 }
 
 type Transfer @entity {
-  "<tokenContractAddress>-<tokenId>-<transactionHash>"
+  "<projectSmartContractAddress>-<tokenId>-<transactionHash>"
   id: ID!
 
   "Transaction hash for the transfer"
@@ -320,8 +320,8 @@ type EditionsAuction @entity {
   "Transaction hash where the editions auction was created"
   transactionHash: String!
 
-  "The originating token contract for this auction"
-  tokenContract: TokenContract!
+  "The project of the auction"
+  project: Project!
 
   "Whether or not the auction has been approved by the curator"
   approved: Boolean
