@@ -1,10 +1,10 @@
-// token contract implementations to match schema
+// project implementations to match schema
 export const projectImplementations = [
   "Standard",
   "Seeded"
 ]
 
-// url types on versions of token contracts
+// url types on project versions
 export const urlTypes = [
   "Image",
   "Animation",
