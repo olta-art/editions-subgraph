@@ -1,5 +1,5 @@
 // token contract implementations to match schema
-export const tokenContractImplementations = [
+export const projectImplementations = [
   "editions",
   "seededEditions"
 ]
