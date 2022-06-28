@@ -1,10 +1,10 @@
 import {
-  SingleEditionMintable,
-  SeededSingleEditionMintable
+  StandardProject,
+  SeededProject
 } from '../../types/templates'
 import {
   CreatedEdition,
-} from '../../types/SingleEditionMintableCreator/SingleEditionMintableCreator'
+} from '../../types/ProjectCreator/ProjectCreator'
 import {
   findOrCreateProject,
   findOrCreateUser
@@ -25,13 +25,13 @@ export function handleCreatedProject (event: CreatedEdition): void {
   // create mapping with context based on project implementation
 
   if(projectImplementations[event.params.implementation] == "Standard") {
-    SingleEditionMintable.createWithContext(
+    StandardProject.createWithContext(
       event.params.editionContractAddress,
       context
     )
   }
   if(projectImplementations[event.params.implementation] == "Seeded") {
-    SeededSingleEditionMintable.createWithContext(
+    SeededProject.createWithContext(
       event.params.editionContractAddress,
       context
     )

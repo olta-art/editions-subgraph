@@ -7,7 +7,7 @@ import {
   Approval,
   ApprovedMinter,
   RoyaltyFundsRecipientChanged
-} from '../types/templates/SeededSingleEditionMintable/SeededSingleEditionMintable'
+} from '../types/templates/SeededProject/SeededProject'
 
 import {
   approvedMinterHandler,
