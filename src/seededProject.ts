@@ -5,7 +5,8 @@ import {
   VersionAdded,
   VersionURLUpdated,
   Approval,
-  ApprovedMinter
+  ApprovedMinter,
+  RoyaltyFundsRecipientChanged
 } from '../types/templates/SeededSingleEditionMintable/SeededSingleEditionMintable'
 
 import {
@@ -13,7 +14,8 @@ import {
   transferHandler,
   approvalHandler,
   versionAddedHandler,
-  versionURLUpdatedHandler
+  versionURLUpdatedHandler,
+  royaltyFundsRecipientChangedHandler
  } from './projectHandlers'
 
 let context = dataSource.context()
@@ -23,3 +25,4 @@ export function handleTransfer(event: Transfer): void { transferHandler(event, c
 export function handleApproval(event: Approval): void { approvalHandler(event, context) }
 export function handleVersionAdded(event: VersionAdded): void { versionAddedHandler(event, context) }
 export function handleVersionURLUpdated(event: VersionURLUpdated): void { versionURLUpdatedHandler(event, context) }
+export function handleRoyaltyFundsRecipientChanged(event: RoyaltyFundsRecipientChanged): void { royaltyFundsRecipientChangedHandler(event, context)}

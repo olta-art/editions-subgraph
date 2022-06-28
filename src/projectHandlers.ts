@@ -6,6 +6,7 @@ import {
   VersionURLUpdated,
   Approval,
   ApprovedMinter,
+  RoyaltyFundsRecipientChanged,
 } from '../types/templates/SingleEditionMintable/SingleEditionMintable'
 
 import {
@@ -229,7 +230,7 @@ export function versionAddedHandler<T extends VersionAdded>(event: T, context: D
       project.name = singleEditionMintableContract.name()
       project.symbol = singleEditionMintableContract.symbol()
       project.description = singleEditionMintableContract.description()
-      project.creatorRoyaltyBPS = singleEditionMintableContract.royaltyBPS()
+      project.royaltyBPS = singleEditionMintableContract.royaltyBPS()
     }
 
     // update latest versions
@@ -271,7 +272,7 @@ export function versionAddedHandler<T extends VersionAdded>(event: T, context: D
       project.name = seededSingleEditionMintable.name()
       project.symbol = seededSingleEditionMintable.symbol()
       project.description = seededSingleEditionMintable.description()
-      project.creatorRoyaltyBPS = seededSingleEditionMintable.royaltyBPS()
+      project.royaltyBPS = seededSingleEditionMintable.royaltyBPS()
     }
 
     // update latest versions
@@ -322,4 +323,14 @@ export function versionURLUpdatedHandler<T extends VersionURLUpdated>(event: T, 
   // update url on urlHashPair
   urlHashPair.url = event.params.url
   urlHashPair.save()
+}
+
+export function royaltyFundsRecipientChangedHandler<T extends RoyaltyFundsRecipientChanged>(event: T, context: DataSourceContext): void {
+  const projectId = context.getString('project')
+
+  log.info(`Starting: handler for royaltyFundsRecipientChanged for project {}`, [projectId])
+  let project = findOrCreateProject(projectId)
+  project.royaltyRecpient = event.params.newRecipientAddress.toHexString()
+  project.save()
+  log.info(`Completed: handler for royaltyFundsRecipientChanged for project {}`, [projectId])
 }

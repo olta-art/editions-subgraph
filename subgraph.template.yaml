@@ -88,6 +88,8 @@ templates:
           handler: handleVersionURLUpdated
         - event: ApprovedMinter(indexed address,indexed address,bool)
           handler: handleApprovedMinter
+        - event: RoyaltyFundsRecipientChanged(address)
+          handler: handleRoyaltyFundsRecipientChanged
         # TODO: set price sale eth
         # TODO: other erc-721 events
       file: ./src/standardProject.ts
@@ -121,6 +123,8 @@ templates:
           handler: handleVersionURLUpdated
         - event: ApprovedMinter(indexed address,indexed address,bool)
           handler: handleApprovedMinter
+        - event: RoyaltyFundsRecipientChanged(address)
+          handler: handleRoyaltyFundsRecipientChanged
         # TODO: set price sale eth
         # TODO: other erc-721 events
       file: ./src/seededProject.ts
