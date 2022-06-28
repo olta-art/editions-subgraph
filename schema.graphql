@@ -47,11 +47,14 @@ type Project @entity {
   "The description of project"
   description: String
 
-  "The roylaty the creator recives on secondary sales"
-  creatorRoyaltyBPS: BigInt
-
-  "The implementation type of the project smart contract"
+    "The implementation type of the project smart contract"
   implementation: ProjectImplementation!
+
+  "The roylaty the royalty recpient recives on secondary sales in 'basis points' percentage"
+  royaltyBPS: BigInt
+
+  "The address where royalties are sent"
+  royaltyRecpient: User!
 
   "The editions minted"
   editions: [Edition!] @derivedFrom(field: "project")
