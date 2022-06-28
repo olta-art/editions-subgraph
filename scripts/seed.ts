@@ -221,7 +221,7 @@ const run = async () => {
     }
   }
 
-  const count = actionCount(10)
+  const count = actionCount(14)
 
   const [auctionId] = await getEventArguments(tx, "AuctionCreated")
   console.log(`${count.increment()} creator created auction:${auctionId}`, tx.hash)
@@ -325,6 +325,10 @@ const run = async () => {
   tx = await EditionsAuction.connect(collector)["purchase(uint256,uint256,uint256)"](seededAuctionId, salePrice, 5)
   await tx.wait()
   console.log(`${count.increment()} collector purchased seeded NFT seed(5)`, tx.hash)
+
+  // change royalty fund recpient
+  await SeededSingleEditionMintable.connect(creator).setRoyaltyFundsRecipient(curator.address)
+  console.log(`${count.increment()} creator set royalty fund recpient to curator`, tx.hash)
 }
 
 run();
