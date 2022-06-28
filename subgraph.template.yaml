@@ -36,7 +36,7 @@ dataSources:
           handler: handleSeededEditionPurchased
         - event: AuctionApprovalUpdated(uint256,address,bool)
           handler: handleAuctionApprovalUpdated
-      file: ./src/editionsAuction.ts
+      file: ./src/auction.ts
   - kind: ethereum/contract
     name: SingleEditionMintableCreator
     network: {{ network }}
@@ -48,15 +48,15 @@ dataSources:
       kind: ethereum/events
       apiVersion: 0.0.5
       language: wasm/assemblyscript
-      file: ./src/mappings/SingleEditionMintableCreator.ts
+      file: ./src/mappings/projectCreator.ts
       abis:
         - name: SingleEditionMintableCreator
           file: ./deployments/localhost/SingleEditionMintableCreator.json
       entities:
-        - TokenContractCreator
+        - ProjectCreator
       eventHandlers:
         - event: CreatedEdition(indexed uint256,indexed address,uint256,address,uint8)
-          handler: handleCreatedEdition
+          handler: handleCreatedProject
 templates:
   - name: SingleEditionMintable
     kind: ethereum/contract
@@ -68,9 +68,9 @@ templates:
       apiVersion: 0.0.5
       language: wasm/assemblyscript
       entities:
-        - TokenContract
-        - TokenContractMinterApproval
-        - Token
+        - Project
+        - ProjectMinterApproval
+        - Edition
         - Version
         - UrlHashPair
         - UrlUpdate
@@ -90,7 +90,7 @@ templates:
           handler: handleApprovedMinter
         # TODO: set price sale eth
         # TODO: other erc-721 events
-      file: ./src/singleEditionMintable.ts
+      file: ./src/standardProject.ts
   - name: SeededSingleEditionMintable
     kind: ethereum/contract
     network: {{ network }}
@@ -101,9 +101,9 @@ templates:
       apiVersion: 0.0.5
       language: wasm/assemblyscript
       entities:
-        - TokenContract
-        - TokenContractMinterApproval
-        - Token
+        - Project
+        - ProjectMinterApproval
+        - Edition
         - Version
         - UrlHashPair
         - UrlUpdate
@@ -123,4 +123,4 @@ templates:
           handler: handleApprovedMinter
         # TODO: set price sale eth
         # TODO: other erc-721 events
-      file: ./src/seededSingleEditionMintable.ts
+      file: ./src/seededProject.ts

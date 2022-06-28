@@ -12,8 +12,8 @@ import {
 import {
   createEditionsAuction,
   findOrCreateCurrency,
-  findOrCreateToken,
-  findOrCreateTokenContract,
+  findOrCreateEdition,
+  findOrCreateProject,
   findOrCreateUser
 } from './helpers'
 
@@ -25,16 +25,16 @@ export function handleEditionsAuctionCreated(event: AuctionCreated): void {
     event.params.auctionId.toString()
   ])
 
-  const tokenCreator = findOrCreateUser(event.params.creator.toHexString())
+  const creator = findOrCreateUser(event.params.creator.toHexString())
   const curator = findOrCreateUser(event.params.curator.toHexString())
-  const tokenContract = findOrCreateTokenContract(event.params.edition.id.toHexString())
+  const project = findOrCreateProject(event.params.edition.id.toHexString())
   const currency = findOrCreateCurrency(event.params.auctionCurrency.toHexString())
   const endTimestamp = event.params.startTimestamp.plus(event.params.duration)
 
   createEditionsAuction(
     event.params.auctionId.toString(),
     event.transaction.hash.toHexString(),
-    tokenContract,
+    project,
     event.params.duration,
     event.params.startTimestamp,
     endTimestamp,
@@ -45,7 +45,7 @@ export function handleEditionsAuctionCreated(event: AuctionCreated): void {
     currency,
     event.block.timestamp,
     event.block.number,
-    tokenCreator,
+    creator,
     curator
   )
 
@@ -114,9 +114,10 @@ function createPurchase<T extends EditionPurchased>(event: T, id: string): void 
   purchase.createdAtBlockNumber = event.block.number
   purchase.currency = auction.auctionCurrency
 
-  let tokenId = `${event.params.tokenContract.toHexString()}-${event.params.tokenId.toString()}`
-  let token = findOrCreateToken(tokenId)
-  purchase.token = token.id
+  // TODO: change tokenContract to project below if and when contract event params are renamed
+  let editionId = `${event.params.tokenContract.toHexString()}-${event.params.tokenId.toString()}`
+  let edition = findOrCreateEdition(editionId)
+  purchase.edition = edition.id
 
   purchase.save()
 }
