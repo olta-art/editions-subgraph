@@ -264,8 +264,8 @@ type Purchase @entity {
   "The edition purchased"
   edition: Edition!
 
-  "The Editions auction associated with the Purchase"
-  editionsAuction: EditionsAuction!
+  "The dutch auction drop associated with the Purchase"
+  dutchAuctionDrop: DutchAuctionDrop!
 
   "The amount of the Purchase"
   amount: BigInt!
@@ -309,18 +309,18 @@ type Transfer @entity {
   createdAtBlockNumber: BigInt!
 }
 
-enum EditionsAuctionStatus {
+enum DutchAuctionDropStatus {
   Pending
   Active
   Canceled
   Finished
 }
 
-type EditionsAuction @entity {
-  "ID of the editions auction from contract, autoincrementing int"
+type DutchAuctionDrop @entity {
+  "ID of the dutch auction drop from <projectContractAddress-iteration>"
   id: ID!
 
-  "Transaction hash where the editions auction was created"
+  "Transaction hash where the auction was created"
   transactionHash: String!
 
   "The project of the auction"
@@ -356,13 +356,14 @@ type EditionsAuction @entity {
   "The address of the auction's curator"
   curator: User!
 
-  # "The address of the ERC-20 currency to run the auction with, or 0x0 for ETH"
+  "The address of the ERC-20 currency to run the auction with, or 0x0 for ETH"
   auctionCurrency: Currency!
 
-  status: EditionsAuctionStatus!
+  "The current status of the auction"
+  status: DutchAuctionDropStatus!
 
   "The previous bids on this auction"
-  previousPurchases: [Purchase!]  @derivedFrom(field: "editionsAuction")
+  previousPurchases: [Purchase!]  @derivedFrom(field: "dutchAuctionDrop")
 
   "The time the auction was approved"
   approvedTimestamp: BigInt
@@ -381,6 +382,5 @@ type EditionsAuction @entity {
 
   "The block number at which the auction end function was called"
   finalizedAtBlockNumber: BigInt
-
 }
 
