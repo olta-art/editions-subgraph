@@ -329,8 +329,12 @@ export function royaltyFundsRecipientChangedHandler<T extends RoyaltyFundsRecipi
   const projectId = context.getString('project')
 
   log.info(`Starting: handler for royaltyFundsRecipientChanged for project {}`, [projectId])
+
+  let newRecipient = findOrCreateUser(event.params.newRecipientAddress.toHexString())
+
   let project = findOrCreateProject(projectId)
-  project.royaltyRecpient = event.params.newRecipientAddress.toHexString()
+  project.royaltyRecpient = newRecipient.id
   project.save()
+
   log.info(`Completed: handler for royaltyFundsRecipientChanged for project {}`, [projectId])
 }
