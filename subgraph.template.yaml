@@ -5,21 +5,21 @@ schema:
   file: ./schema.graphql
 dataSources:
   - kind: ethereum/contract
-    name: EditionsAuction
+    name: DutchAuctionDrop
     network: {{ network }}
     source:
-      address: "{{ EditionsAuctionAddress }}"
-      abi: EditionsAuction
+      address: "{{ dutchAuctionDropAddress }}"
+      abi: DutchAuctionDrop
       startBlock: {{ startBlock }}
     mapping:
       kind: ethereum/events
       apiVersion: 0.0.5
       language: wasm/assemblyscript
       entities:
-        - EditionsAuction
+        - DutchAuctionDrop
         - Purchase
       abis:
-        - name: EditionsAuction
+        - name: DutchAuctionDrop
           file: ./deployments/localhost/EditionsAuction.json
         - name: ERC20
           file: ./abis/ERC20/ERC20.json
@@ -29,20 +29,20 @@ dataSources:
           file: ./abis/ERC20/ERC20NameBytes.json
       eventHandlers:
         - event: AuctionCreated(uint256,address,(address,uint8),uint256,uint256,uint256,uint256,uint8,address,uint256,address)
-          handler: handleEditionsAuctionCreated
+          handler: handleAuctionCreated
         - event: EditionPurchased(uint256,address,uint256,uint256,address)
-          handler: handleEditionPurchased
+          handler: handleStandardEditionPurchased
         - event: SeededEditionPurchased(uint256,address,uint256,uint256,uint256,address)
           handler: handleSeededEditionPurchased
         - event: AuctionApprovalUpdated(uint256,address,bool)
           handler: handleAuctionApprovalUpdated
-      file: ./src/auction.ts
+      file: ./src/dutchAuctionDrop.ts
   - kind: ethereum/contract
-    name: SingleEditionMintableCreator
+    name: ProjectCreator
     network: {{ network }}
     source:
-      address: "{{ SingleEditionMintableCreatorAddress }}"
-      abi: SingleEditionMintableCreator
+      address: "{{ projectCreatorAddress }}"
+      abi: ProjectCreator
       startBlock: {{ startBlock }}
     mapping:
       kind: ethereum/events
@@ -50,7 +50,7 @@ dataSources:
       language: wasm/assemblyscript
       file: ./src/mappings/projectCreator.ts
       abis:
-        - name: SingleEditionMintableCreator
+        - name: ProjectCreator
           file: ./deployments/localhost/SingleEditionMintableCreator.json
       entities:
         - ProjectCreator
@@ -58,11 +58,11 @@ dataSources:
         - event: CreatedEdition(indexed uint256,indexed address,uint256,address,uint8)
           handler: handleCreatedProject
 templates:
-  - name: SingleEditionMintable
+  - name: StandardProject
     kind: ethereum/contract
     network: {{ network }}
     source:
-      abi: SingleEditionMintable
+      abi: StandardProject
     mapping:
       kind: ethereum/events
       apiVersion: 0.0.5
@@ -75,7 +75,7 @@ templates:
         - UrlHashPair
         - UrlUpdate
       abis:
-        - name: SingleEditionMintable
+        - name: StandardProject
           file: ./deployments/localhost/SingleEditionMintable.json
       eventHandlers:
         - event: Approval(indexed address,indexed address,indexed uint256)
@@ -93,11 +93,11 @@ templates:
         # TODO: set price sale eth
         # TODO: other erc-721 events
       file: ./src/standardProject.ts
-  - name: SeededSingleEditionMintable
+  - name: SeededProject
     kind: ethereum/contract
     network: {{ network }}
     source:
-      abi: SeededSingleEditionMintable
+      abi: SeededProject
     mapping:
       kind: ethereum/events
       apiVersion: 0.0.5
@@ -110,7 +110,7 @@ templates:
         - UrlHashPair
         - UrlUpdate
       abis:
-        - name: SeededSingleEditionMintable
+        - name: SeededProject
           file: ./deployments/localhost/SeededSingleEditionMintable.json
       eventHandlers:
         - event: Approval(indexed address,indexed address,indexed uint256)

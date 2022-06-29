@@ -3,14 +3,14 @@ import {
   AuctionApprovalUpdated,
   EditionPurchased,
   SeededEditionPurchased
-} from '../types/EditionsAuction/EditionsAuction'
+} from '../types/DutchAuctionDrop/DutchAuctionDrop'
 
 import {
-  EditionsAuction, Purchase
+  DutchAuctionDrop, Purchase
 } from '../types/schema'
 
 import {
-  createEditionsAuction,
+  createDutchAuctionDrop,
   findOrCreateCurrency,
   findOrCreateEdition,
   findOrCreateProject,
@@ -20,7 +20,7 @@ import {
 import { log } from '@graphprotocol/graph-ts'
 
 
-export function handleEditionsAuctionCreated(event: AuctionCreated): void {
+export function handleAuctionCreated(event: AuctionCreated): void {
   log.info(`Starting handler for AuctionCreated for auction {}`, [
     event.params.auctionId.toString()
   ])
@@ -31,7 +31,7 @@ export function handleEditionsAuctionCreated(event: AuctionCreated): void {
   const currency = findOrCreateCurrency(event.params.auctionCurrency.toHexString())
   const endTimestamp = event.params.startTimestamp.plus(event.params.duration)
 
-  createEditionsAuction(
+  createDutchAuctionDrop(
     event.params.auctionId.toString(),
     event.transaction.hash.toHexString(),
     project,
@@ -58,7 +58,7 @@ export function handleAuctionApprovalUpdated(event: AuctionApprovalUpdated): voi
   let id = event.params.auctionId.toString()
   log.info(`Starting handler for AuctionApprovalUpdate on auction {}`, [id])
 
-  let auction = EditionsAuction.load(id)
+  let auction = DutchAuctionDrop.load(id)
 
   if(auction == null) {
     log.error('Missing Editions Auction with id {} for approval', [id])
@@ -74,7 +74,7 @@ export function handleAuctionApprovalUpdated(event: AuctionApprovalUpdated): voi
   log.info(`Completed handler for AuctionApprovalUpdate on auction {}`, [id])
 }
 
-export function handleEditionPurchased(event: EditionPurchased): void {
+export function handleStandardEditionPurchased(event: EditionPurchased): void {
   const id = event.transaction.hash.toHexString()
   log.info(`Starting handler for EditionPurchased on auction {}`, [id])
 
@@ -95,7 +95,7 @@ export function handleSeededEditionPurchased(event: SeededEditionPurchased): voi
 function createPurchase<T extends EditionPurchased>(event: T, id: string): void {
   const auctionId = event.params.auctionId.toString()
 
-  let auction = EditionsAuction.load(auctionId)
+  let auction = DutchAuctionDrop.load(auctionId)
 
   if(auction == null) {
     log.error('Missing Editions Auction with id {} for purchase', [auctionId])
@@ -106,7 +106,7 @@ function createPurchase<T extends EditionPurchased>(event: T, id: string): void 
 
   purchase.id = id
   purchase.transactionHash = id
-  purchase.editionsAuction = auctionId
+  purchase.dutchAuctionDrop = auctionId
   purchase.amount = event.params.price
   purchase.collector = event.params.owner.toHexString()
   purchase.purchaseType = "Final"

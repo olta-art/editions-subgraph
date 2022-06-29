@@ -1,15 +1,12 @@
 import { Address, BigInt } from '@graphprotocol/graph-ts/index'
 
-import { ERC20 } from '../types/EditionsAuction/ERC20'
-import { ERC20NameBytes } from '../types/EditionsAuction/ERC20NameBytes'
-import { ERC20SymbolBytes } from '../types/EditionsAuction/ERC20SymbolBytes'
-
-import { SingleEditionMintable__getURIsResult } from '../types/templates/SingleEditionMintable/SingleEditionMintable'
-import { SeededSingleEditionMintable__getURIsResult } from '../types/templates/SeededSingleEditionMintable/SeededSingleEditionMintable'
+import { ERC20 } from '../types/DutchAuctionDrop/ERC20'
+import { ERC20NameBytes } from '../types/DutchAuctionDrop/ERC20NameBytes'
+import { ERC20SymbolBytes } from '../types/DutchAuctionDrop/ERC20SymbolBytes'
 
 import {
   User,
-  EditionsAuction,
+  DutchAuctionDrop,
   Currency,
   Edition,
   Project,
@@ -19,8 +16,6 @@ import {
   Transfer,
   ProjectMinterApproval
 } from '../types/schema'
-
-import { ethereum } from '@graphprotocol/graph-ts/index'
 
 export const zeroAddress = '0x0000000000000000000000000000000000000000'
 /**
@@ -127,7 +122,7 @@ export function findOrCreateProjectMinterApproval(id: string): ProjectMinterAppr
   return projectMinterApproval as ProjectMinterApproval
 }
 
-export function createEditionsAuction(
+export function createDutchAuctionDrop(
   id: string,
   transactionHash: string,
   project: Project,
@@ -143,31 +138,31 @@ export function createEditionsAuction(
   createdAtBlockNumber: BigInt,
   creator: User,
   curator: User
-): EditionsAuction {
-  let editionsAuction = new EditionsAuction(id)
+): DutchAuctionDrop {
+  let auction = new DutchAuctionDrop(id)
 
-  editionsAuction.id = id
-  editionsAuction.transactionHash = transactionHash
-  editionsAuction.project = project.id
-  editionsAuction.approved = false
-  editionsAuction.duration = duration
-  editionsAuction.startTimestamp = startTimestamp
-  editionsAuction.endTimestamp = endTimestamp
-  editionsAuction.startPrice = startPrice
-  editionsAuction.endPrice = endPrice
-  editionsAuction.numberOfPriceDrops = numberOfPriceDrops
-  editionsAuction.approvedTimestamp = null
-  editionsAuction.curatorRoyaltyBPS = curatorRoyaltyBPS
-  editionsAuction.creator = creator.id
-  editionsAuction.curator = curator.id
-  editionsAuction.auctionCurrency = auctionCurrency.id
-  editionsAuction.status = 'Pending'
-  editionsAuction.createdAtTimestamp = createdAtTimestamp
-  editionsAuction.createdAtBlockNumber = createdAtBlockNumber
+  auction.id = id
+  auction.transactionHash = transactionHash
+  auction.project = project.id
+  auction.approved = false
+  auction.duration = duration
+  auction.startTimestamp = startTimestamp
+  auction.endTimestamp = endTimestamp
+  auction.startPrice = startPrice
+  auction.endPrice = endPrice
+  auction.numberOfPriceDrops = numberOfPriceDrops
+  auction.approvedTimestamp = null
+  auction.curatorRoyaltyBPS = curatorRoyaltyBPS
+  auction.creator = creator.id
+  auction.curator = curator.id
+  auction.auctionCurrency = auctionCurrency.id
+  auction.status = 'Pending'
+  auction.createdAtTimestamp = createdAtTimestamp
+  auction.createdAtBlockNumber = createdAtBlockNumber
 
-  editionsAuction.save()
+  auction.save()
 
-  return editionsAuction
+  return auction
 }
 
 /**

@@ -1,17 +1,17 @@
 // Edition handlers
 import {
   Transfer,
-  SingleEditionMintable as SingleEditionMintableContract,
+  StandardProject,
   VersionAdded,
   VersionURLUpdated,
   Approval,
   ApprovedMinter,
   RoyaltyFundsRecipientChanged,
-} from '../types/templates/SingleEditionMintable/SingleEditionMintable'
+} from '../types/templates/StandardProject/StandardProject'
 
 import {
-  SeededSingleEditionMintable,
-} from '../types/templates/SeededSingleEditionMintable/SeededSingleEditionMintable'
+  SeededProject,
+} from '../types/templates/SeededProject/SeededProject'
 
 import {
   Purchase,
@@ -113,14 +113,14 @@ function mintHandler<T extends Transfer>(event: T, context: DataSourceContext): 
   let projectAddress = Address.fromString(context.getString('project'))
 
   if(project.implementation == "Standard"){
-    let singleEditionMintable = SingleEditionMintableContract.bind(projectAddress)
-    edition.uri = singleEditionMintable.tokenURI(event.params.tokenId)
+    let standardProject = StandardProject.bind(projectAddress)
+    edition.uri = standardProject.tokenURI(event.params.tokenId)
   }
 
   if(project.implementation == "Seeded"){
-    let seededSingleEditionMintable = SeededSingleEditionMintable.bind(projectAddress)
-    edition.uri = seededSingleEditionMintable.tokenURI(event.params.tokenId)
-    edition.seed = seededSingleEditionMintable.seedOfTokens(event.params.tokenId)
+    let seededProject = SeededProject.bind(projectAddress)
+    edition.uri = seededProject.tokenURI(event.params.tokenId)
+    edition.seed = seededProject.seedOfTokens(event.params.tokenId)
   }
 
   edition.save()
@@ -209,16 +209,16 @@ export function versionAddedHandler<T extends VersionAdded>(event: T, context: D
 
   if(project.implementation == "Standard") {
      // call getURIs of version to fetch uris for specifc for label
-    const singleEditionMintableContract = SingleEditionMintableContract.bind(
+    const standardProject = StandardProject.bind(
       Address.fromString(projectAddress)
     )
 
     // HACK(george): running into a type mismatch error with the following
-    // const callResult = singleEditionMintableContract.try_getURIsOfVersion(event.params.label)
+    // const callResult = standardProject.try_getURIsOfVersion(event.params.label)
     // TODO: try this https://www.assemblyscript.org/stdlib/staticarray.html
     // my solution for now is to call getURIs as it will retrieve latest added URIs
     // it is "unlikley" versions to be updated in quick succsession.
-    const callResult = singleEditionMintableContract.try_getURIs()
+    const callResult = standardProject.try_getURIs()
     if(callResult.reverted){
       log.info("getURIs Reverted", [])
       // TODO: need to add urlHashes
@@ -227,10 +227,10 @@ export function versionAddedHandler<T extends VersionAdded>(event: T, context: D
 
     // handle project initialization
     if(!project.lastAddedVersion){
-      project.name = singleEditionMintableContract.name()
-      project.symbol = singleEditionMintableContract.symbol()
-      project.description = singleEditionMintableContract.description()
-      project.royaltyBPS = singleEditionMintableContract.royaltyBPS()
+      project.name = standardProject.name()
+      project.symbol = standardProject.symbol()
+      project.description = standardProject.description()
+      project.royaltyBPS = standardProject.royaltyBPS()
     }
 
     // update latest versions
@@ -255,12 +255,12 @@ export function versionAddedHandler<T extends VersionAdded>(event: T, context: D
 
   if(project.implementation == "Seeded"){
     // call getURIs of version to fetch uris for specifc for label
-    const seededSingleEditionMintable = SeededSingleEditionMintable.bind(
+    const seededProject = SeededProject.bind(
       Address.fromString(projectAddress)
     )
 
     // HACK(george): same hack as used above for singlineEditionMintable
-    const callResult = seededSingleEditionMintable.try_getURIs()
+    const callResult = seededProject.try_getURIs()
     if(callResult.reverted){
       log.info("getURIs Reverted", [])
       // TODO: need to add urlHashes
@@ -269,10 +269,10 @@ export function versionAddedHandler<T extends VersionAdded>(event: T, context: D
 
     // handle project initialization
     if(!project.lastAddedVersion){
-      project.name = seededSingleEditionMintable.name()
-      project.symbol = seededSingleEditionMintable.symbol()
-      project.description = seededSingleEditionMintable.description()
-      project.royaltyBPS = seededSingleEditionMintable.royaltyBPS()
+      project.name = seededProject.name()
+      project.symbol = seededProject.symbol()
+      project.description = seededProject.description()
+      project.royaltyBPS = seededProject.royaltyBPS()
     }
 
     // update latest versions
@@ -329,8 +329,12 @@ export function royaltyFundsRecipientChangedHandler<T extends RoyaltyFundsRecipi
   const projectId = context.getString('project')
 
   log.info(`Starting: handler for royaltyFundsRecipientChanged for project {}`, [projectId])
+
+  let newRecipient = findOrCreateUser(event.params.newRecipientAddress.toHexString())
+
   let project = findOrCreateProject(projectId)
-  project.royaltyRecpient = event.params.newRecipientAddress.toHexString()
+  project.royaltyRecpient = newRecipient.id
   project.save()
+
   log.info(`Completed: handler for royaltyFundsRecipientChanged for project {}`, [projectId])
 }
