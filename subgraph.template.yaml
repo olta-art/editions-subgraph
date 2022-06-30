@@ -20,7 +20,7 @@ dataSources:
         - Purchase
       abis:
         - name: DutchAuctionDrop
-          file: ./deployments/localhost/EditionsAuction.json
+          file: ./deployments/localhost/DutchAuctionDrop.json
         - name: ERC20
           file: ./abis/ERC20/ERC20.json
         - name: ERC20SymbolBytes
@@ -51,11 +51,11 @@ dataSources:
       file: ./src/mappings/projectCreator.ts
       abis:
         - name: ProjectCreator
-          file: ./deployments/localhost/SingleEditionMintableCreator.json
+          file: ./deployments/localhost/ProjectCreator.json
       entities:
         - ProjectCreator
       eventHandlers:
-        - event: CreatedEdition(indexed uint256,indexed address,uint256,address,uint8)
+        - event: CreatedProject(indexed uint256,indexed address,uint256,address,uint8)
           handler: handleCreatedProject
 templates:
   - name: StandardProject
@@ -76,7 +76,7 @@ templates:
         - UrlUpdate
       abis:
         - name: StandardProject
-          file: ./deployments/localhost/SingleEditionMintable.json
+          file: ./deployments/localhost/StandardProject.json
       eventHandlers:
         - event: Approval(indexed address,indexed address,indexed uint256)
           handler: handleApproval
@@ -111,7 +111,7 @@ templates:
         - UrlUpdate
       abis:
         - name: SeededProject
-          file: ./deployments/localhost/SeededSingleEditionMintable.json
+          file: ./deployments/localhost/SeededProject.json
       eventHandlers:
         - event: Approval(indexed address,indexed address,indexed uint256)
           handler: handleApproval
