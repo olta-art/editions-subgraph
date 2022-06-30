@@ -3,7 +3,7 @@ import {
   SeededProject
 } from '../../types/templates'
 import {
-  CreatedEdition,
+  CreatedProject,
 } from '../../types/ProjectCreator/ProjectCreator'
 import {
   findOrCreateProject,
@@ -12,7 +12,7 @@ import {
 import { projectImplementations } from '../constants'
 import { log, DataSourceContext, BigInt } from '@graphprotocol/graph-ts'
 
-export function handleCreatedProject (event: CreatedEdition): void {
+export function handleCreatedProject (event: CreatedProject): void {
 
   let projectAddress = event.params.editionContractAddress.toHexString()
   log.info(`Starting: handleCreatedProject`, [projectAddress])

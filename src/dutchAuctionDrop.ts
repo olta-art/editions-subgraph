@@ -27,7 +27,7 @@ export function handleAuctionCreated(event: AuctionCreated): void {
 
   const creator = findOrCreateUser(event.params.creator.toHexString())
   const curator = findOrCreateUser(event.params.curator.toHexString())
-  const project = findOrCreateProject(event.params.edition.id.toHexString())
+  const project = findOrCreateProject(event.params.project.id.toHexString())
   const currency = findOrCreateCurrency(event.params.auctionCurrency.toHexString())
   const endTimestamp = event.params.startTimestamp.plus(event.params.duration)
 
@@ -114,8 +114,8 @@ function createPurchase<T extends EditionPurchased>(event: T, id: string): void 
   purchase.createdAtBlockNumber = event.block.number
   purchase.currency = auction.auctionCurrency
 
-  // TODO: change tokenContract to project below if and when contract event params are renamed
-  let editionId = `${event.params.tokenContract.toHexString()}-${event.params.tokenId.toString()}`
+
+  let editionId = `${event.params.project.toHexString()}-${event.params.editionId.toString()}`
   let edition = findOrCreateEdition(editionId)
   purchase.edition = edition.id
 

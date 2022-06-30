@@ -1,15 +1,15 @@
 import { ethers, deployments } from "hardhat"
 import {
-  EditionsAuction,
-  SingleEditionMintableCreator,
-  SingleEditionMintable,
+  DutchAuctionDrop,
+  ProjectCreator,
+  StandardProject,
   WETH,
-  EditionsAuction__factory,
-  SingleEditionMintableCreator__factory,
-  SingleEditionMintable__factory,
+  DutchAuctionDrop__factory,
+  ProjectCreator__factory,
+  StandardProject__factory,
   WETH__factory,
-  SeededSingleEditionMintable,
-  SeededSingleEditionMintable__factory
+  SeededProject,
+  SeededProject__factory
 } from "../typechain"
 
 import { SignerWithAddress } from "@nomiclabs/hardhat-ethers/signers";
@@ -17,22 +17,22 @@ import { BigNumberish, ContractTransaction } from "ethers";
 
 type Label = [BigNumberish, BigNumberish, BigNumberish]
 
-// const editionsAuctionAddress = "0x5FbDB2315678afecb367f032d93F642f64180aa3"
-// const SingleEditionMintableCreatorAddress = "0x0165878A594ca255338adfa4d48449f69242Eb8F"
+// const DutchAuctionDropAddress = "0x5FbDB2315678afecb367f032d93F642f64180aa3"
+// const ProjectCreatorAddress = "0x0165878A594ca255338adfa4d48449f69242Eb8F"
 // const WETHaddress ="0x9fE46736679d2D9a65F0992F2272dE9f3c7fa6e0"
 
 const getDeployedContracts = async () => {
-  const editionsAuctionAddress = (await deployments.get("EditionsAuction")).address
-  const EditionsAuction = await ethers.getContractAt(
-    EditionsAuction__factory.abi,
-    editionsAuctionAddress
-  ) as EditionsAuction
+  const DutchAuctionDropAddress = (await deployments.get("DutchAuctionDrop")).address
+  const DutchAuctionDrop = await ethers.getContractAt(
+    DutchAuctionDrop__factory.abi,
+    DutchAuctionDropAddress
+  ) as DutchAuctionDrop
 
-  const SingleEditonCreatorAddress = (await deployments.get("SingleEditionMintableCreator")).address
+  const SingleEditonCreatorAddress = (await deployments.get("ProjectCreator")).address
   const SingleEditonCreator = (await ethers.getContractAt(
-    SingleEditionMintableCreator__factory.abi,
+    ProjectCreator__factory.abi,
     SingleEditonCreatorAddress
-  )) as SingleEditionMintableCreator;
+  )) as ProjectCreator;
 
   const WETHAddress = (await deployments.get("WETH")).address
   const WETH = (await ethers.getContractAt(
@@ -41,7 +41,7 @@ const getDeployedContracts = async () => {
   )) as WETH
 
   return {
-    EditionsAuction,
+    DutchAuctionDrop,
     SingleEditonCreator,
     WETH
   }
@@ -106,8 +106,8 @@ export const getEventArguments = async (tx: ContractTransaction, eventName: stri
   return event?.args!
 }
 
-const createEdition = async (signer: SignerWithAddress, SingleEditonCreator: SingleEditionMintableCreator) => {
-  const transaction = await SingleEditonCreator.connect(signer).createEdition(
+const createProject = async (signer: SignerWithAddress, SingleEditonCreator: ProjectCreator) => {
+  const transaction = await SingleEditonCreator.connect(signer).createProject(
     editionData(
       "Testing Token",
       "TEST",
@@ -118,18 +118,18 @@ const createEdition = async (signer: SignerWithAddress, SingleEditonCreator: Sin
     ),
     Implementation.editions
   );
-  const [id, creator, editionSize, editionContractAddress] = await getEventArguments(transaction, "CreatedEdition")
-  const editionResult = await SingleEditonCreator.getEditionAtId(id, Implementation.editions)
+  const [id, creator, editionSize, editionContractAddress] = await getEventArguments(transaction, "CreatedProject")
+  const editionResult = await SingleEditonCreator.getProjectAtId(id, Implementation.editions)
   const SingleEditionContract = (await ethers.getContractAt(
-    SingleEditionMintable__factory.abi,
+    StandardProject__factory.abi,
     editionResult
-  )) as SingleEditionMintable;
+  )) as StandardProject;
 
   return SingleEditionContract
 }
 
-const createSeededEdition = async (signer: SignerWithAddress, SingleEditonCreator: SingleEditionMintableCreator) => {
-  const transaction = await SingleEditonCreator.connect(signer).createEdition(
+const createSeededEdition = async (signer: SignerWithAddress, SingleEditonCreator: ProjectCreator) => {
+  const transaction = await SingleEditonCreator.connect(signer).createProject(
     editionData(
       "Testing Seeded Token",
       "SEED TEST",
@@ -140,21 +140,21 @@ const createSeededEdition = async (signer: SignerWithAddress, SingleEditonCreato
     ),
     Implementation.seededEditions
   );
-  const [id, creator, editionSize, editionContractAddress] = await getEventArguments(transaction, "CreatedEdition")
+  const [id, creator, editionSize, editionContractAddress] = await getEventArguments(transaction, "CreatedProject")
   console.log(id)
-  const editionResult = await SingleEditonCreator.getEditionAtId(id, Implementation.seededEditions)
+  const editionResult = await SingleEditonCreator.getProjectAtId(id, Implementation.seededEditions)
   const SeededSingleEditionContract = (await ethers.getContractAt(
-    SeededSingleEditionMintable__factory.abi,
+    SeededProject__factory.abi,
     editionResult
-  )) as SeededSingleEditionMintable;
+  )) as SeededProject;
 
   return SeededSingleEditionContract
 }
 
 const createAuction = async (
   signer: SignerWithAddress,
-  SingleEdition: SingleEditionMintable | SeededSingleEditionMintable,
-  EditionsAuction: EditionsAuction,
+  SingleEdition: StandardProject | SeededProject,
+  DutchAuctionDrop: DutchAuctionDrop,
   erc20: WETH,
   options = {}
 ) => {
@@ -175,7 +175,7 @@ const createAuction = async (
 
   const params = {...defaults, ...options}
 
-  return EditionsAuction.connect(signer).createAuction(
+  return DutchAuctionDrop.connect(signer).createAuction(
     params.editionContract,
     params.startTime,
     params.duration,
@@ -197,13 +197,13 @@ const delay = (t: number) => {
 const run = async () => {
   const [curator, creator, collector] = await ethers.getSigners();
 
-  const {EditionsAuction, SingleEditonCreator, WETH} = await getDeployedContracts()
-  const SingleEditionMintable = await createEdition(creator, SingleEditonCreator)
+  const {DutchAuctionDrop, SingleEditonCreator, WETH} = await getDeployedContracts()
+  const StandardProject = await createProject(creator, SingleEditonCreator)
 
   let tx = await createAuction(
     creator,
-    SingleEditionMintable,
-    EditionsAuction,
+    StandardProject,
+    DutchAuctionDrop,
     WETH
   )
 
@@ -227,8 +227,8 @@ const run = async () => {
   console.log(`${count.increment()} creator created auction:${auctionId}`, tx.hash)
 
   // approve auction for minting
-  tx = await SingleEditionMintable.connect(creator).setApprovedMinter(EditionsAuction.address, true)
-  console.log(`${count.increment()} creator approved editionsAuction to mint`, tx.hash)
+  tx = await StandardProject.connect(creator).setApprovedMinter(DutchAuctionDrop.address, true)
+  console.log(`${count.increment()} creator approved DutchAuctionDrop to mint`, tx.hash)
   tx.wait()
 
   // give collector some WETH to play with
@@ -236,7 +236,7 @@ const run = async () => {
   await tx.wait()
   console.log(`${count.increment()} collector has WETH`, tx.hash)
 
-  tx = await WETH.connect(collector).approve(EditionsAuction.address, ethers.utils.parseEther("40.0"))
+  tx = await WETH.connect(collector).approve(DutchAuctionDrop.address, ethers.utils.parseEther("40.0"))
   await tx.wait()
   console.log(`${count.increment()} collector approved WETH to be spent`, tx.hash)
 
@@ -244,13 +244,13 @@ const run = async () => {
   await delay(2000)
 
   // purchase nft
-  let salePrice = await EditionsAuction.getSalePrice(auctionId)
-  tx = await EditionsAuction.connect(collector)["purchase(uint256,uint256)"](auctionId, salePrice)
+  let salePrice = await DutchAuctionDrop.getSalePrice(auctionId)
+  tx = await DutchAuctionDrop.connect(collector)["purchase(uint256,uint256)"](auctionId, salePrice)
   await tx.wait()
   console.log(`${count.increment()} collector purchased NFT`, tx.hash)
 
   // add version
-  tx = await SingleEditionMintable.connect(creator).addVersion(
+  tx = await StandardProject.connect(creator).addVersion(
     {
     urls: [
       // image
@@ -270,7 +270,7 @@ const run = async () => {
   console.log(`${count.increment()} creator added version to NFT`, tx.hash)
 
   // update version url
-  tx = await SingleEditionMintable.connect(creator).updateVersionURL(
+  tx = await StandardProject.connect(creator).updateVersionURL(
     [0,0,2] as Label,
     urlKeys.animation,
     "https://arweave.net/fnfNerUHj64h-J2yU9d-rZ6ZBAQRhrWfkw_fgiKyl2k"
@@ -279,7 +279,7 @@ const run = async () => {
   console.log(`${count.increment()} creator updated version url`, tx.hash)
 
   // grant approval
-  tx = await SingleEditionMintable.connect(collector).approve(
+  tx = await StandardProject.connect(collector).approve(
     await creator.getAddress(),
     1
   )
@@ -287,25 +287,25 @@ const run = async () => {
   console.log(`${count.increment()} collector granted approval of NFT id(1) to creator`, tx.hash)
 
   // purchase another nft
-  salePrice = await EditionsAuction.getSalePrice(auctionId)
-  tx = await EditionsAuction.connect(collector)["purchase(uint256,uint256)"](auctionId, salePrice)
+  salePrice = await DutchAuctionDrop.getSalePrice(auctionId)
+  tx = await DutchAuctionDrop.connect(collector)["purchase(uint256,uint256)"](auctionId, salePrice)
   await tx.wait()
   console.log(`${count.increment()} collector purchased NFT id(2)`, tx.hash)
 
   // burn nft
-  tx = await SingleEditionMintable.connect(collector).burn(2)
+  tx = await StandardProject.connect(collector).burn(2)
   await tx.wait()
   console.log(`${count.increment()} collector burned NFT id(2)`, tx.hash)
 
   // add seeded edition and auction
-  const SeededSingleEditionMintable = await createSeededEdition(creator, SingleEditonCreator)
+  const SeededProject = await createSeededEdition(creator, SingleEditonCreator)
   tx = await createAuction(
     creator,
-    SeededSingleEditionMintable,
-    EditionsAuction,
+    SeededProject,
+    DutchAuctionDrop,
     WETH,
     { editionContract: {
-      id: SeededSingleEditionMintable.address,
+      id: SeededProject.address,
       implementation: Implementation.seededEditions
     }}
   )
@@ -316,18 +316,18 @@ const run = async () => {
   await delay(2000)
 
   // approve auction for minting
-  tx = await SeededSingleEditionMintable.connect(creator).setApprovedMinter(EditionsAuction.address, true)
-  console.log(`${count.increment()} creator approved editionsAuction to mint`, tx.hash)
+  tx = await SeededProject.connect(creator).setApprovedMinter(DutchAuctionDrop.address, true)
+  console.log(`${count.increment()} creator approved DutchAuctionDrop to mint`, tx.hash)
   tx.wait()
 
   // purchase seeded nft
-  salePrice = await EditionsAuction.getSalePrice(seededAuctionId)
-  tx = await EditionsAuction.connect(collector)["purchase(uint256,uint256,uint256)"](seededAuctionId, salePrice, 5)
+  salePrice = await DutchAuctionDrop.getSalePrice(seededAuctionId)
+  tx = await DutchAuctionDrop.connect(collector)["purchase(uint256,uint256,uint256)"](seededAuctionId, salePrice, 5)
   await tx.wait()
   console.log(`${count.increment()} collector purchased seeded NFT seed(5)`, tx.hash)
 
   // change royalty fund recpient
-  await SeededSingleEditionMintable.connect(creator).setRoyaltyFundsRecipient(curator.address)
+  await SeededProject.connect(creator).setRoyaltyFundsRecipient(curator.address)
   console.log(`${count.increment()} creator set royalty fund recpient to curator`, tx.hash)
 }
 
