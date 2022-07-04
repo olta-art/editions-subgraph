@@ -18,13 +18,15 @@ This is a work in progress and not yet deployed if you would like to contribute 
 
 **Warning: this subgraph indexes smart-contracts that are still in development, it is likely there will be breaking changes**
 
-Explore the mumbai subgraph [here](https://api.thegraph.com/subgraphs/name/olta-art/olta-editions-mumbai/graphql)
+~~Explore the mumbai subgraph [here](https://api.thegraph.com/subgraphs/name/olta-art/olta-editions-mumbai/graphql)~~
+
+Explore the mumbai subgraph [https://api.thegraph.com/subgraphs/name/olta-art/mumbai-v1/graphql](https://api.thegraph.com/subgraphs/name/olta-art/mumbai-v1)
 
 **hint:**
 
     clicking the explorer button in the top left allows you to quickly construct queries. The docs button on the top right gives you more detailed explanation of the schema
 
-deployment details and logs can be found [here](https://thegraph.com/hosted-service/subgraph/olta-art/olta-editions-mumbai)
+deployment details and logs can be found [here](https://thegraph.com/hosted-service/subgraph/olta-art/mumbai-v1)
 
 ---
 ## How to setup locally
