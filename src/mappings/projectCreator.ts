@@ -4,6 +4,7 @@ import {
 } from '../../types/templates'
 import {
   CreatedProject,
+  // CreatorApprovalsUpdated
 } from '../../types/ProjectCreator/ProjectCreator'
 import {
   findOrCreateProject,
@@ -14,7 +15,7 @@ import { log, DataSourceContext, BigInt } from '@graphprotocol/graph-ts'
 
 export function handleCreatedProject (event: CreatedProject): void {
 
-  let projectAddress = event.params.editionContractAddress.toHexString()
+  let projectAddress = event.params.project.toHexString()
   log.info(`Starting: handleCreatedProject`, [projectAddress])
 
   // create new context
@@ -26,13 +27,13 @@ export function handleCreatedProject (event: CreatedProject): void {
 
   if(projectImplementations[event.params.implementation] == "Standard") {
     StandardProject.createWithContext(
-      event.params.editionContractAddress,
+      event.params.project,
       context
     )
   }
   if(projectImplementations[event.params.implementation] == "Seeded") {
     SeededProject.createWithContext(
-      event.params.editionContractAddress,
+      event.params.project,
       context
     )
   }
@@ -42,7 +43,7 @@ export function handleCreatedProject (event: CreatedProject): void {
 
   project.id = projectAddress
   project.editionSize =  event.params.editionSize
-  project.projectId = event.params.editionId
+  project.projectId = event.params.projectId
   project.implementation = projectImplementations[event.params.implementation]
   project.createdAtBlockNumber = event.block.number
   project.createdAtTimestamp = event.block.timestamp
@@ -58,3 +59,7 @@ export function handleCreatedProject (event: CreatedProject): void {
 
   log.info(`Completed: handleCreatedProject`, [projectAddress])
 }
+
+// export function handleCreatorApprovalsUpdated (event: CreatorApprovalsUpdated): void {
+  
+// }
