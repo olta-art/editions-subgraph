@@ -3,6 +3,18 @@ enum ProjectImplementation {
   Seeded
 }
 
+type ProjectCreator @entity {
+  "The address of the project creator smart contract"
+  id: ID!
+
+  """
+  The status of project creation.
+  False means only curated creators can create new projects.
+  True means everyone can create new projects.
+  """
+  isOpen: Boolean!
+}
+
 type Project @entity {
   "The smart-contract address of the project"
   id: ID!
@@ -247,6 +259,9 @@ type User @entity {
 
   "The Purchases made by the User"
   previousPurchases: [Purchase!]! @derivedFrom(field: "collector")
+
+  "The approval status of the users ability to create projects"
+  curatedCreator: Boolean!
 }
 
 enum PurchaseType {
