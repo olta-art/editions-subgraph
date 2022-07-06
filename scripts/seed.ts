@@ -21,6 +21,8 @@ type Label = [BigNumberish, BigNumberish, BigNumberish]
 // const ProjectCreatorAddress = "0x0165878A594ca255338adfa4d48449f69242Eb8F"
 // const WETHaddress ="0x9fE46736679d2D9a65F0992F2272dE9f3c7fa6e0"
 
+export const zeroAddress = '0x0000000000000000000000000000000000000000'
+
 const getDeployedContracts = async () => {
   const DutchAuctionDropAddress = (await deployments.get("DutchAuctionDrop")).address
   const DutchAuctionDrop = await ethers.getContractAt(
@@ -198,6 +200,8 @@ const run = async () => {
   const [curator, creator, collector] = await ethers.getSigners();
 
   const {DutchAuctionDrop, SingleEditonCreator, WETH} = await getDeployedContracts()
+
+  await SingleEditonCreator.setCreatorApprovals([{id: zeroAddress, approval: true}])
   const StandardProject = await createProject(creator, SingleEditonCreator)
 
   let tx = await createAuction(

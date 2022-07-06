@@ -1,4 +1,4 @@
-import { Address, BigInt } from '@graphprotocol/graph-ts/index'
+import { Address, BigInt, Entity } from '@graphprotocol/graph-ts/index'
 
 import { ERC20 } from '../types/DutchAuctionDrop/ERC20'
 import { ERC20NameBytes } from '../types/DutchAuctionDrop/ERC20NameBytes'
@@ -14,15 +14,24 @@ import {
   UrlHashPair,
   UrlUpdate,
   Transfer,
-  ProjectMinterApproval
+  ProjectMinterApproval,
+  ProjectCreator
 } from '../types/schema'
 
 export const zeroAddress = '0x0000000000000000000000000000000000000000'
-/**
- * Find or Create a User entity with `id` and return it
- * @param id
- */
- export function findOrCreateUser(id: string): User {
+
+export function findOrCreateProjectCreator(id: string): ProjectCreator {
+  let projectCreator = ProjectCreator.load(id)
+
+  if (projectCreator == null) {
+    projectCreator = new ProjectCreator(id)
+    projectCreator.save()
+  }
+
+  return projectCreator as ProjectCreator
+}
+
+export function findOrCreateUser(id: string): User {
   let user = User.load(id)
 
   if (user == null) {
@@ -43,7 +52,6 @@ export function findOrCreateCurrency(id: string): Currency {
 
   return currency as Currency
 }
-
 
 export function findOrCreateEdition(id: string): Edition {
   let edition = Edition.load(id)
