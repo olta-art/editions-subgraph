@@ -13,6 +13,9 @@ type ProjectCreator @entity {
   True means everyone can create new projects.
   """
   isOpen: Boolean!
+
+  "The total number of projects created"
+  totalProjects: BigInt!
 }
 
 type Project @entity {
