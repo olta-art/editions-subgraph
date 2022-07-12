@@ -78,3 +78,5 @@ typechain
 deployments/localhost
 cache
 subgraph.yaml
+
+NOTES.md
