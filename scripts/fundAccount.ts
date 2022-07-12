@@ -4,7 +4,7 @@ import { WETH, WETH__factory} from "../typechain"
 // TODO: hardhat run doesn't take user arguments :( refactor to a hardhat task to allow for
 // `yarn fund-local-address 0x5f0009F23251fEB0f58c8e3aAb8E096Af16FaECD`
 
-const account = process.argv[process.argv.length -1] ?? "0x5f0009F23251fEB0f58c8e3aAb8E096Af16FaECD"
+const account = "0x5f0009F23251fEB0f58c8e3aAb8E096Af16FaECD"
 
 const fundAccount= async () => {
   const  [signer] = await ethers.getSigners()
@@ -29,7 +29,7 @@ const fundAccount= async () => {
     value: ethers.utils.parseEther("100")
   })
   // send WETH
-  await WETH.transfer(account, ethers.utils.parseEther("100"))
+  await WETH.transfer(account.toLowerCase(), ethers.utils.parseEther("100"))
 
   console.log(`Transfered 100 ETH and 100 WETH to`, account)
 }
