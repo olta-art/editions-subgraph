@@ -4,6 +4,7 @@
   "author": "olta.art",
   "license": "MIT",
   "scripts": {
+    "fund-local-account": "hardhat run --network localhost scripts/fundAccount.ts",
     "prepare:local": "mustache config/50.json subgraph.template.yaml > subgraph.yaml",
     "prepare:mumbai": "mustache config/80001.json subgraph.template.yaml > subgraph.yaml",
     "create-local": "graph create olta-art/edtions-auction-subgraph --node http://127.0.0.1:8020",
