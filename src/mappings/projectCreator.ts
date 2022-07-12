@@ -59,6 +59,20 @@ export function handleCreatedProject (event: CreatedProject): void {
 
   project.save()
 
+  let projectCreator = findOrCreateProjectCreator(dataSource.address().toHexString())
+  //update total of projects created
+  projectCreator.totalProjects = increment(projectCreator.totalProjects)
+
+  //update standard implementation total
+  if(project.implementation === "Standard")
+    projectCreator.totalStandardProjects = increment(projectCreator.totalStandardProjects)
+
+  //update seeded implementation total
+  if(project.implementation === "Seeded")
+    projectCreator.totalSeededProjects = increment(projectCreator.totalSeededProjects)
+
+  projectCreator.save()
+
   log.info(`Completed: handleCreatedProject {}`, [projectAddress])
 }
 
@@ -79,4 +93,9 @@ export function handleCreatorApprovalsUpdated (event: CreatorApprovalsUpdated): 
   })
 
   log.info(`completed: handleCreatorApprovalsUpdated`, [])
+}
+
+
+function increment(number: BigInt): BigInt {
+  return number.plus(BigInt.fromI32(1))
 }
