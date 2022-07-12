@@ -59,7 +59,7 @@ type Project @entity {
   "The description of project"
   description: String
 
-    "The implementation type of the project smart contract"
+  "The implementation type of the project smart contract"
   implementation: ProjectImplementation!
 
   "The roylaty the royalty recpient recives on secondary sales in 'basis points' percentage"
@@ -76,6 +76,9 @@ type Project @entity {
 
   "The number of the block the Purchase was created in"
   createdAtBlockNumber: BigInt!
+
+  "The dutch auction drops associated with this project"
+  dutchAuctionDrops: [DutchAuctionDrop!] @derivedFrom(field: "project")
 }
 
 type ProjectMinterApproval @entity {
