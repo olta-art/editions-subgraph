@@ -59,6 +59,11 @@ export function handleCreatedProject (event: CreatedProject): void {
 
   project.save()
 
+  //update total of projects created
+  let projectCreator = findOrCreateProjectCreator(dataSource.address().toHexString())
+  projectCreator.totalProjects = projectCreator.totalProjects.plus(BigInt.fromI32(1))
+  projectCreator.save()
+
   log.info(`Completed: handleCreatedProject {}`, [projectAddress])
 }
 
