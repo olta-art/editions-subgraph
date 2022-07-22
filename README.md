@@ -1,32 +1,26 @@
-# Olta Editions Subgraph [WIP]
+# Olta Editions Subgraph
 
-Aims:
-  1. to index all the necessary smart contract states for olta's editions and editions auction
-  2. to be accessible from within an olta artwork so that the nft's can be self aware
+indexes olta's editions smart contracts and drops. Can be used to from within editions to create dynamic nft's.
 
-This is a work in progress and not yet deployed if you would like to contribute please feel to reach out on [Olta's discord](https://discord.gg/wnj2qW8pH6) pull requests are very welcome.
-
-## TODO 🛠️
-
-- [ ] tests
-- [x] mumbai deployment
-- [ ] polygon deployment
+Olta editions is still in beta. We will be adding things regualry. If you would like to contribute or a have a feature request please feel to reach out on [Olta's discord](https://discord.gg/wnj2qW8pH6) pull requests are very welcome.
 
 ---
 
-## Mumbai Deployment
+## Polygon
 
-**Warning: this subgraph indexes smart-contracts that are still in development, it is likely there will be breaking changes**
+Explorer: [https://api.thegraph.com/subgraphs/name/olta-art/polygon-v1/graphql](https://api.thegraph.com/subgraphs/name/olta-art/polygon-v1)
 
-~~Explore the mumbai subgraph [here](https://api.thegraph.com/subgraphs/name/olta-art/olta-editions-mumbai/graphql)~~
+deployment details and logs can be found [here](https://thegraph.com/hosted-service/subgraph/olta-art/polygon-v1)
 
-Explore the mumbai subgraph [https://api.thegraph.com/subgraphs/name/olta-art/mumbai-v1/graphql](https://api.thegraph.com/subgraphs/name/olta-art/mumbai-v1)
+## Mumbai
+
+Explorer: [https://api.thegraph.com/subgraphs/name/olta-art/mumbai-v1/graphql](https://api.thegraph.com/subgraphs/name/olta-art/mumbai-v1)
+
+deployment details and logs can be found [here](https://thegraph.com/hosted-service/subgraph/olta-art/mumbai-v1)
 
 **hint:**
 
     clicking the explorer button in the top left allows you to quickly construct queries. The docs button on the top right gives you more detailed explanation of the schema
-
-deployment details and logs can be found [here](https://thegraph.com/hosted-service/subgraph/olta-art/mumbai-v1)
 
 ---
 ## How to setup locally
