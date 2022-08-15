@@ -260,6 +260,15 @@ type User @entity {
   # "Users that have been granted `ApprovalForAll` editions of the User's Collection"
   # authorizedUsers: [User!]
 
+  "The display name of the user"
+  name: String!
+
+  "The description of the user"
+  description: String!
+
+  "The URI of an external link for more info about the user"
+  link: String!
+
   "The projects the user is approved to mint"
   approvedToMint: [ProjectMinterApproval!]! @derivedFrom(field: "user")
 
