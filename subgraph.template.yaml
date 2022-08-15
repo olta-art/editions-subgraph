@@ -59,6 +59,26 @@ dataSources:
           handler: handleCreatedProject
         - event: CreatorApprovalsUpdated((address,bool)[])
           handler: handleCreatorApprovalsUpdated
+  - kind: ethereum/contract
+    name: Profiles
+    network: {{ network }}
+    source:
+      address: "{{ profilesAddress }}"
+      abi: Profiles
+      startBlock: {{ startBlock }}
+    mapping:
+      kind: ethereum/events
+      apiVersion: 0.0.5
+      language: wasm/assemblyscript
+      file: ./src/profiles.ts
+      abis:
+        - name: Profiles
+          file: ./deployments/localhost/Profiles.json
+      entities:
+        - Profile
+      eventHandlers:
+        - event: Updated(address,(string,string,string,string))
+          handler: handleProfileUpdated
 templates:
   - name: StandardProject
     kind: ethereum/contract

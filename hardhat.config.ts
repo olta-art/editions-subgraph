@@ -47,6 +47,11 @@ const config: HardhatUserConfig = {
         artifacts: process.env.PATH_TO_NFT_EDITIONS + "artifacts",
         deploy: process.env.PATH_TO_NFT_EDITIONS + "deploy"
       },
+      // OLTA PROFILES
+      {
+        artifacts: process.env.PATH_TO_PROFILES + "artifacts",
+        deploy: process.env.PATH_TO_PROFILES + "deploy"
+      },
     ],
     deployments : {
       localhost: ["./deployments"]

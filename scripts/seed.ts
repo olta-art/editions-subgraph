@@ -1,4 +1,4 @@
-import { ethers, deployments } from "hardhat"
+import { ethers, deployments, network } from "hardhat"
 import {
   DutchAuctionDrop,
   ProjectCreator,
@@ -9,7 +9,9 @@ import {
   StandardProject__factory,
   WETH__factory,
   SeededProject,
-  SeededProject__factory
+  SeededProject__factory,
+  Profiles,
+  Profiles__factory
 } from "../typechain"
 
 import { SignerWithAddress } from "@nomiclabs/hardhat-ethers/signers";
@@ -20,6 +22,11 @@ type Label = [BigNumberish, BigNumberish, BigNumberish]
 // const DutchAuctionDropAddress = "0x5FbDB2315678afecb367f032d93F642f64180aa3"
 // const ProjectCreatorAddress = "0x0165878A594ca255338adfa4d48449f69242Eb8F"
 // const WETHaddress ="0x9fE46736679d2D9a65F0992F2272dE9f3c7fa6e0"
+
+const mineOneHour = async () => {
+  await network.provider.send("evm_increaseTime", [3600])
+  await network.provider.send("evm_mine")
+}
 
 export const zeroAddress = '0x0000000000000000000000000000000000000000'
 
@@ -42,10 +49,17 @@ const getDeployedContracts = async () => {
     WETHAddress
   )) as WETH
 
+  const ProfilesAddress = (await deployments.get("Profiles")).address
+  const Profiles = (await ethers.getContractAt(
+    Profiles__factory.abi,
+    ProfilesAddress
+  )) as Profiles
+
   return {
     DutchAuctionDrop,
     SingleEditonCreator,
-    WETH
+    WETH,
+    Profiles
   }
 }
 
@@ -199,17 +213,7 @@ const delay = (t: number) => {
 const run = async () => {
   const [curator, creator, collector] = await ethers.getSigners();
 
-  const {DutchAuctionDrop, SingleEditonCreator, WETH} = await getDeployedContracts()
-
-  await SingleEditonCreator.setCreatorApprovals([{id: zeroAddress, approval: true}])
-  const StandardProject = await createProject(creator, SingleEditonCreator)
-
-  let tx = await createAuction(
-    creator,
-    StandardProject,
-    DutchAuctionDrop,
-    WETH
-  )
+  const {DutchAuctionDrop, SingleEditonCreator, WETH, Profiles} = await getDeployedContracts()
 
   const actionCount = (_total: number) => {
     let total = _total
@@ -225,7 +229,20 @@ const run = async () => {
     }
   }
 
-  const count = actionCount(14)
+  const count = actionCount(19)
+
+  let tx = await SingleEditonCreator.setCreatorApprovals([{id: zeroAddress, approval: true}])
+  console.log(`${count.increment()} allow everyone to create project`, tx.hash)
+
+  const StandardProject = await createProject(creator, SingleEditonCreator)
+  console.log(`${count.increment()} created project`, "address" + StandardProject.address)
+
+  tx = await createAuction(
+    creator,
+    StandardProject,
+    DutchAuctionDrop,
+    WETH
+  )
 
   const [auctionId] = await getEventArguments(tx, "AuctionCreated")
   console.log(`${count.increment()} creator created auction:${auctionId}`, tx.hash)
@@ -333,6 +350,41 @@ const run = async () => {
   // change royalty fund recpient
   await SeededProject.connect(creator).setRoyaltyFundsRecipient(curator.address)
   console.log(`${count.increment()} creator set royalty fund recpient to curator`, tx.hash)
+
+  // mine an hour in time
+  // NOTE[george]: this is a precution if the seed script has already been run
+  await mineOneHour()
+
+  // add creator profile
+  await Profiles.connect(creator).update({
+    name: "creator",
+    description: "creator of nft's and other such things",
+    thumbnailURI: "",
+    linkURI: `https://beta.art/profile.html?wallet=${creator.address}`
+  })
+  console.log(`${count.increment()} creator created a profile`, tx.hash)
+
+   // add collector profile
+   await Profiles.connect(collector).update({
+    name: "collector",
+    description: "collector of nft's and other such things",
+    thumbnailURI: "",
+    linkURI: `https://beta.art/profile.html?wallet=${collector.address}`
+  })
+  console.log(`${count.increment()} collector created a profile`, tx.hash)
+
+  // mine an hour in time
+  await mineOneHour()
+
+   // update collector profile with an emoji
+   await Profiles.connect(collector).update({
+    name: "",
+    description: "the best collector of octopus related nft's in the world 🐙",
+    thumbnailURI: "",
+    linkURI: ""
+  })
+  console.log(`${count.increment()} collector updated their profile`, tx.hash)
+
 }
 
 run();
