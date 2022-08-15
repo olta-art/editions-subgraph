@@ -9,7 +9,9 @@ import {
   StandardProject__factory,
   WETH__factory,
   SeededProject,
-  SeededProject__factory
+  SeededProject__factory,
+  Profiles,
+  Profiles__factory
 } from "../typechain"
 
 import { SignerWithAddress } from "@nomiclabs/hardhat-ethers/signers";
@@ -42,10 +44,17 @@ const getDeployedContracts = async () => {
     WETHAddress
   )) as WETH
 
+  const ProfilesAddress = (await deployments.get("Profiles")).address
+  const Profiles = (await ethers.getContractAt(
+    Profiles__factory.abi,
+    ProfilesAddress
+  )) as Profiles
+
   return {
     DutchAuctionDrop,
     SingleEditonCreator,
-    WETH
+    WETH,
+    Profiles
   }
 }
 
