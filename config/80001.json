@@ -2,5 +2,6 @@
   "network": "mumbai",
   "dutchAuctionDropAddress": "0x57D9b13B8f5fFA5ba2002891001aBF33FCc4601b",
   "projectCreatorAddress": "0x0bEc046DDbA18894088Bf4130AbD8496b8dff154",
+  "profilesAddress": "0x6615fbCf647208f131AA6CBA3bA274391E2aF8AE",
   "startBlock": 27029146
 }
