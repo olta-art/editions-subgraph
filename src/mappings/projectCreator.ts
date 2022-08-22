@@ -55,7 +55,7 @@ export function handleCreatedProject (event: CreatedProject): void {
 
   let creator = findOrCreateUser(event.params.creator.toHexString())
   project.creator = creator.id
-  project.royaltyRecpient =  creator.id
+  project.royaltyRecipient =  creator.id
 
   project.save()
 
