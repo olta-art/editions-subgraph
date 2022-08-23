@@ -1,0 +1,15 @@
+[
+  {
+    "inputs": [],
+    "name": "splitMain",
+    "outputs": [
+      {
+        "internalType": "contract ISplitMain",
+        "name": "",
+        "type": "address"
+      }
+    ],
+    "stateMutability": "view",
+    "type": "function"
+  }
+]
