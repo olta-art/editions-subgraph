@@ -14,6 +14,13 @@ import {
 } from '../types/templates/SeededProject/SeededProject'
 
 import {
+  SplitMain,
+} from '../types/templates/StandardProject/SplitMain'
+import {
+  SplitWallet,
+} from '../types/templates/StandardProject/SplitWallet'
+
+import {
   Purchase,
 } from '../types/schema'
 
@@ -332,9 +339,36 @@ export function royaltyFundsRecipientChangedHandler<T extends RoyaltyFundsRecipi
 
   let newRecipient = findOrCreateUser(event.params.newRecipientAddress.toHexString())
 
+  // check for 0xSplits
+  let isSplit = isSplitWallet(event.params.newRecipientAddress)
+  if(isSplit){
+    newRecipient.type = "SplitWallet"
+    newRecipient.save()
+  }
+
   let project = findOrCreateProject(projectId)
   project.royaltyRecipient = newRecipient.id
   project.save()
 
   log.info(`Completed: handler for royaltyFundsRecipientChanged for project {}`, [projectId])
+}
+
+function isSplitWallet(split: Address): boolean {
+  let splitWallet = SplitWallet.bind(split)
+
+  // read splitMain of splitWallet contract
+  let result = splitWallet.try_splitMain()
+  if(result.reverted) return false
+
+  // NOTE:[george] this is to verify on SplitMain contract
+  // leaving commented out as probably not necessary
+  /*
+    let splitMain = SplitMain.bind(result.value)
+    let hashResult = splitMain.try_getHash(split)
+
+    if(hashResult.reverted) return false
+
+    if(hashResult.value.toHexString() === zeroAddress) return false
+  */
+  return true
 }
