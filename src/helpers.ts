@@ -36,6 +36,7 @@ export function findOrCreateUser(id: string): User {
 
   if (user == null) {
     user = new User(id)
+    user.type = "EOA"
     user.save()
   }
 
