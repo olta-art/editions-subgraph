@@ -252,6 +252,13 @@ type Currency @entity {
   previousPurchases: [Purchase!] @derivedFrom(field: "currency")
 }
 
+enum UserType {
+  "Externally Owned Address"
+  EOA
+  "0xSplits Smart contract"
+  SplitWallet
+}
+
 type User @entity {
   "Ethereum Address"
   id: ID!
@@ -283,6 +290,9 @@ type User @entity {
 
   "The approval status of the users ability to create projects"
   curatedCreator: Boolean!
+
+  "The type of User, needs to be verified"
+  type: UserType!
 }
 
 enum PurchaseType {
