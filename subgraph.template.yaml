@@ -99,6 +99,10 @@ templates:
       abis:
         - name: StandardProject
           file: ./deployments/localhost/StandardProject.json
+        - name: SplitMain
+          file: ./abis/0xSplits/SplitMain.json
+        - name: SplitWallet
+          file: ./abis/0xSplits/SplitWallet.json
       eventHandlers:
         - event: Approval(indexed address,indexed address,indexed uint256)
           handler: handleApproval
@@ -134,6 +138,10 @@ templates:
       abis:
         - name: SeededProject
           file: ./deployments/localhost/SeededProject.json
+        - name: SplitMain
+          file: ./abis/0xSplits/SplitMain.json
+        - name: SplitWallet
+          file: ./abis/0xSplits/SplitWallet.json
       eventHandlers:
         - event: Approval(indexed address,indexed address,indexed uint256)
           handler: handleApproval
