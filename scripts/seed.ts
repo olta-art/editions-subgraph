@@ -347,9 +347,9 @@ const run = async () => {
   await tx.wait()
   console.log(`${count.increment()} collector purchased seeded NFT seed(5)`, tx.hash)
 
-  // change royalty fund recpient
+  // change royalty fund recipient
   await SeededProject.connect(creator).setRoyaltyFundsRecipient(curator.address)
-  console.log(`${count.increment()} creator set royalty fund recpient to curator`, tx.hash)
+  console.log(`${count.increment()} creator set royalty fund recipient to curator`, tx.hash)
 
   // mine an hour in time
   // NOTE[george]: this is a precution if the seed script has already been run

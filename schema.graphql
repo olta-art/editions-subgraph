@@ -46,7 +46,7 @@ type Project @entity {
   "The total editions in supply (minted - burned)"
   totalSupply: BigInt!
 
-  "The addressess for approved minter"
+  "The addresses for approved minter"
   approvedMinters: [ProjectMinterApproval!]! @derivedFrom(field: "project")
 
   # TODO: add latest version by label
@@ -71,11 +71,11 @@ type Project @entity {
   "The implementation type of the project smart contract"
   implementation: ProjectImplementation!
 
-  "The roylaty the royalty recpient recives on secondary sales in 'basis points' percentage"
+  "The royalty the recipient receives on secondary sales in 'basis points' percentage"
   royaltyBPS: BigInt
 
   "The address where royalties are sent"
-  royaltyRecpient: User!
+  royaltyRecipient: User!
 
   "The editions minted"
   editions: [Edition!] @derivedFrom(field: "project")
@@ -329,7 +329,7 @@ type Transfer @entity {
   "Transaction hash for the transfer"
   transactionHash: String!
 
-  "The edition transfered"
+  "The edition transferred"
   edition: Edition!
 
   "The User transferring the edition"

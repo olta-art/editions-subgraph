@@ -333,7 +333,7 @@ export function royaltyFundsRecipientChangedHandler<T extends RoyaltyFundsRecipi
   let newRecipient = findOrCreateUser(event.params.newRecipientAddress.toHexString())
 
   let project = findOrCreateProject(projectId)
-  project.royaltyRecpient = newRecipient.id
+  project.royaltyRecipient = newRecipient.id
   project.save()
 
   log.info(`Completed: handler for royaltyFundsRecipientChanged for project {}`, [projectId])
