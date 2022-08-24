@@ -293,6 +293,12 @@ type User @entity {
 
   "The type of User, needs to be verified"
   type: UserType!
+
+  "The timestamp of the last time name, description or link were updated"
+  profileUpdatedAtTimestamp: BigInt!
+
+  "The block number of the last time name, description or link were updated"
+  profileUpdatedAtBlockNumber: BigInt!
 }
 
 enum PurchaseType {
