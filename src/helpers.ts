@@ -37,6 +37,8 @@ export function findOrCreateUser(id: string): User {
   if (user == null) {
     user = new User(id)
     user.type = "EOA"
+    user.profileUpdatedAtTimestamp = new BigInt(0)
+    user.profileUpdatedAtBlockNumber = new BigInt(0)
     user.save()
   }
 
