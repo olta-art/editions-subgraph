@@ -20,6 +20,9 @@ export function handleProfileUpdated(event: Updated): void{
   if(p.linkURI.length !== 0)
     user.link = p.linkURI
 
+  user.profileUpdatedAtTimestamp = event.block.timestamp
+  user.profileUpdatedAtBlockNumber = event.block.number
+
   user.save()
 
   log.info(`Completed handler for profiles Updated for user {}`, [id])
