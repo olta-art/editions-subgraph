@@ -259,13 +259,12 @@ enum UserType {
   SplitWallet
 }
 
-type User @entity {
-  "Ethereum Address"
+type Profile @entity {
+  "<Ethereum Address'-profile'>"
   id: ID!
 
-  # TODO: index approval events
-  # "Users that have been granted `ApprovalForAll` editions of the User's Collection"
-  # authorizedUsers: [User!]
+  "The user the profile belongs to"
+  user: User!
 
   "The display name of the user"
   name: String!
@@ -275,6 +274,23 @@ type User @entity {
 
   "The URI of an external link for more info about the user"
   link: String!
+
+  "The timestamp of the last time name, description or link were updated"
+  updatedAtTimestamp: BigInt!
+
+  "The block number of the last time name, description or link were updated"
+  updatedAtBlockNumber: BigInt!
+}
+
+type User @entity {
+  "Ethereum Address"
+  id: ID!
+
+  # TODO: index approval events
+  # "Users that have been granted `ApprovalForAll` editions of the User's Collection"
+  # authorizedUsers: [User!]
+
+  profile: Profile! @derivedFrom(field: "user")
 
   "The projects the user is approved to mint"
   approvedToMint: [ProjectMinterApproval!]! @derivedFrom(field: "user")
@@ -293,12 +309,6 @@ type User @entity {
 
   "The type of User, needs to be verified"
   type: UserType!
-
-  "The timestamp of the last time name, description or link were updated"
-  profileUpdatedAtTimestamp: BigInt!
-
-  "The block number of the last time name, description or link were updated"
-  profileUpdatedAtBlockNumber: BigInt!
 }
 
 enum PurchaseType {
