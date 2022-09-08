@@ -9,7 +9,7 @@ const whitelist = async () => {
   )) as ProjectCreator
 
   // close open creating
-  await ProjectCreator.setCreatorApprovals([{id: ethers.constants.AddressZero, approval: false}])
+  await ProjectCreator.setCreatorApprovals([{id: ethers.constants.AddressZero, approval: true}])
 
   await ProjectCreator.setCreatorApprovals([{id: "0x5f0009F23251fEB0f58c8e3aAb8E096Af16FaECD", approval: true }])
 }

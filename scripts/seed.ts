@@ -38,6 +38,7 @@ const getDeployedContracts = async () => {
   ) as DutchAuctionDrop
 
   const SingleEditonCreatorAddress = (await deployments.get("ProjectCreator")).address
+  console.log("PROJECT CREATOR ADDRESS: ", SingleEditonCreatorAddress)
   const SingleEditonCreator = (await ethers.getContractAt(
     ProjectCreator__factory.abi,
     SingleEditonCreatorAddress
