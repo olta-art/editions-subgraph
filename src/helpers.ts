@@ -6,6 +6,7 @@ import { ERC20SymbolBytes } from '../types/DutchAuctionDrop/ERC20SymbolBytes'
 
 import {
   User,
+  Profile,
   DutchAuctionDrop,
   Currency,
   Edition,
@@ -37,12 +38,24 @@ export function findOrCreateUser(id: string): User {
   if (user == null) {
     user = new User(id)
     user.type = "EOA"
-    user.profileUpdatedAtTimestamp = new BigInt(0)
-    user.profileUpdatedAtBlockNumber = new BigInt(0)
     user.save()
   }
 
   return user as User
+}
+
+export function findOrCreateProfile(id: string): Profile {
+  let profile = Profile.load(`${id}-profile`)
+
+  if (profile == null) {
+    profile = new Profile(`${id}-profile`)
+    profile.user = id
+    profile.updatedAtTimestamp = new BigInt(0)
+    profile.updatedAtBlockNumber = new BigInt(0)
+    profile.save()
+  }
+
+  return profile as Profile
 }
 
 export function findOrCreateCurrency(id: string): Currency {
