@@ -1,5 +1,5 @@
 import { Updated} from '../types/Profiles/Profiles'
-import { findOrCreateUser } from "./helpers"
+import { findOrCreateProfile } from "./helpers"
 import { log } from '@graphprotocol/graph-ts'
 
 export function handleProfileUpdated(event: Updated): void{
@@ -7,20 +7,23 @@ export function handleProfileUpdated(event: Updated): void{
 
   log.info(`Starting handler for profiles Updated for user {}`, [id])
 
-  let user = findOrCreateUser(id)
+  let profile = findOrCreateProfile(id)
 
   let p = event.params.profile
 
   if(p.name.length !== 0)
-    user.name = p.name
+    profile.name = p.name
 
   if(p.description.length !== 0)
-    user.description = p.description
+    profile.description = p.description
 
   if(p.linkURI.length !== 0)
-    user.link = p.linkURI
+    profile.link = p.linkURI
 
-  user.save()
+    profile.updatedAtTimestamp = event.block.timestamp
+    profile.updatedAtBlockNumber = event.block.number
+
+  profile.save()
 
   log.info(`Completed handler for profiles Updated for user {}`, [id])
 }
