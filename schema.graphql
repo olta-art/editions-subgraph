@@ -290,7 +290,7 @@ type User @entity {
   # "Users that have been granted `ApprovalForAll` editions of the User's Collection"
   # authorizedUsers: [User!]
 
-  profile: Profile! @derivedFrom(field: "user")
+  profile: Profile @derivedFrom(field: "user")
 
   "The projects the user is approved to mint"
   approvedToMint: [ProjectMinterApproval!]! @derivedFrom(field: "user")
