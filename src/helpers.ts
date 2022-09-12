@@ -46,10 +46,11 @@ export function findOrCreateUser(id: string): User {
 
 export function findOrCreateProfile(id: string): Profile {
   let profile = Profile.load(`${id}-profile`)
+  let user = findOrCreateUser(id)
 
   if (profile == null) {
     profile = new Profile(`${id}-profile`)
-    profile.user = id
+    profile.user = user.id
     profile.updatedAtTimestamp = new BigInt(0)
     profile.updatedAtBlockNumber = new BigInt(0)
     profile.save()
