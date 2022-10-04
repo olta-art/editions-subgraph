@@ -377,7 +377,7 @@ enum AskStatus {
 }
 
 type Ask @entity {
-  "<txHash>"
+  "<projectSmartContractAddress>-<editionId> if filled <projectSmartContractAddress>-<editionId>-<txHash>"
   id: ID!
 
   "The edition the ask is for"
