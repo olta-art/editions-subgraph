@@ -79,6 +79,40 @@ dataSources:
       eventHandlers:
         - event: Updated(address,(string,string,string,string))
           handler: handleProfileUpdated
+  - kind: ethereum/contract
+    name: AsksV1_1
+    network: {{ network }}
+    source:
+      address: "{{ zoraAsksAddress }}"
+      abi: AsksV1_1
+      startBlock: {{ startBlock }}
+    mapping:
+      kind: ethereum/events
+      apiVersion: 0.0.5
+      language: wasm/assemblyscript
+      file: ./src/zoraAsks.ts
+      abis:
+        - name: AsksV1_1
+          file: ./abis/Zora/AsksV1_1.json
+        - name: ERC20
+          file: ./abis/ERC20/ERC20.json
+        - name: ERC20SymbolBytes
+          file: ./abis/ERC20/ERC20SymbolBytes.json
+        - name: ERC20NameBytes
+          file: ./abis/ERC20/ERC20NameBytes.json
+      entities:
+        - Ask
+        - Transfer
+        - Currency
+      eventHandlers:
+        - event: AskCreated(indexed address,indexed uint256,(address,address,address,uint16,uint256))
+          handler: handleAskCreated
+        - event: AskPriceUpdated(indexed address,indexed uint256,(address,address,address,uint16,uint256))
+          handler: handleAskPriceUpdated
+        - event: AskCanceled(indexed address,indexed uint256,(address,address,address,uint16,uint256))
+          handler: handleAskCanceled
+        - event: AskFilled(indexed address,indexed uint256,indexed address,address,(address,address,address,uint16,uint256))
+          handler: handleAskFilled
 templates:
   - name: StandardProject
     kind: ethereum/contract
