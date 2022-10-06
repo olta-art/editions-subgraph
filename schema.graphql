@@ -371,6 +371,43 @@ type Transfer @entity {
   createdAtBlockNumber: BigInt!
 }
 
+enum AskStatus {
+  Active
+  Filled
+}
+
+type Ask @entity {
+  "<projectSmartContractAddress>-<editionId> if filled <projectSmartContractAddress>-<editionId>-<txHash>"
+  id: ID!
+
+  "The edition the ask is for"
+  edition: Edition!
+
+  "The current asking price"
+  price: BigInt!
+
+  "The Currency the purchase was made in"
+  currency: Currency!
+
+  "The status of the ask 'Active' or 'Filled'"
+  status: AskStatus!
+
+  "The user that filled the ask, null if not filled"
+  collector: User
+
+  "The timestamp of the block the Ask was created in"
+  createdAtTimestamp: BigInt!
+
+  "The number of the block the Ask was created in"
+  createdAtBlockNumber: BigInt!
+
+  "The timestamp of the block the Ask was filled in"
+  filledAtTimestamp: BigInt!
+
+  "The number of the block the Ask was filled in"
+  filledAtBlockNumber: BigInt!
+}
+
 enum DutchAuctionDropStatus {
   Pending
   Active

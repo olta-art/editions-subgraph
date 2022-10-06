@@ -16,7 +16,8 @@ import {
   UrlUpdate,
   Transfer,
   ProjectMinterApproval,
-  ProjectCreator
+  ProjectCreator,
+  Ask
 } from '../types/schema'
 
 export const zeroAddress = '0x0000000000000000000000000000000000000000'
@@ -134,6 +135,17 @@ export function findOrCreateTransfer(id: string): Transfer {
   }
 
   return transfer as Transfer
+}
+
+export function findOrCreateAsk(id: string): Ask {
+  let ask = Ask.load(id)
+
+  if(ask == null){
+    ask = new Ask(id)
+    ask.save()
+  }
+
+  return ask as Ask
 }
 
 export function findOrCreateProjectMinterApproval(id: string): ProjectMinterApproval {
