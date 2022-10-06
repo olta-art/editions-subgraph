@@ -7,6 +7,7 @@ import {
   Approval,
   ApprovedMinter,
   RoyaltyFundsRecipientChanged,
+  OwnershipTransferred
 } from '../types/templates/StandardProject/StandardProject'
 
 import {
@@ -371,4 +372,21 @@ function isSplitWallet(split: Address): boolean {
     if(hashResult.value.toHexString() === zeroAddress) return false
   */
   return true
+}
+
+export function ownershipTransferredHandler<T extends OwnershipTransferred>(event: T, context: DataSourceContext): void {
+  const projectId = context.getString('project')
+
+  log.info(`Starting: handler for OwnershipTransferred for project {}`, [projectId])
+
+  if(event.params.newOwner.toHexString() === zeroAddress){
+    let project = findOrCreateProject(projectId)
+
+    project.removedAtTimeStamp = event.block.timestamp
+    project.removedAtBlockNumber = event.block.number
+
+    project.save()
+  }
+
+  log.info(`Completed: handler for OwnershipTransferred for project {}`, [projectId])
 }
