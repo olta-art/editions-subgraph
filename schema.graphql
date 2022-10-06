@@ -80,11 +80,17 @@ type Project @entity {
   "The editions minted"
   editions: [Edition!] @derivedFrom(field: "project")
 
-  "The timestamp of the block the Purchase was created in"
+  "The timestamp of the block the Project was created in"
   createdAtTimestamp: BigInt!
 
-  "The number of the block the Purchase was created in"
+  "The number of the block the Project was created in"
   createdAtBlockNumber: BigInt!
+
+  "The timestamp of the block the Project was removed in"
+  removedAtTimeStamp: BigInt!
+
+  "The number of the block the Project was removed in"
+  removedAtBlockNumber: BigInt!
 
   "The dutch auction drops associated with this project"
   dutchAuctionDrops: [DutchAuctionDrop!] @derivedFrom(field: "project")
