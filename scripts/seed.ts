@@ -123,6 +123,12 @@ export const getEventArguments = async (tx: ContractTransaction, eventName: stri
   return event?.args!
 }
 
+// Helper to make sure timestamp is inline with hardhat node
+const getBlockTimestamp = async () => {
+  const { timestamp } = await network.provider.send("eth_getBlockByNumber", ["latest", false])
+  return parseInt(timestamp)
+}
+
 const createProject = async (signer: SignerWithAddress, SingleEditonCreator: ProjectCreator) => {
   const transaction = await SingleEditonCreator.connect(signer).createProject(
     editionData(
@@ -357,9 +363,58 @@ const run = async () => {
     console.log(`${count.increment()} creator set royalty fund recipient to curator`, tx.hash)
   }
 
+  // Make sure timestamp is inline with hardhat
+  const t = await getBlockTimestamp()
+
+  // create another project and cancel the auction
+  const project2 = await createProject(creator, SingleEditonCreator)
+  tx = await createAuction(
+    creator,
+    project2,
+    DutchAuctionDrop,
+    WETH,
+    {
+      editionContract: {
+        id: project2.address,
+        implementation: Implementation.editions
+      },
+      startTime: t + 120 // starts in 2 mins
+    }
+  )
+
+  await tx.wait()
+
+  const [auctionId2] = await getEventArguments(tx, "AuctionCreated")
+
+  tx = await DutchAuctionDrop.connect(creator).cancelAuction(auctionId2)
+  console.log(`${count.increment()} creator canceled auction:${auctionId2}`, tx.hash)
+
+  // create another auction for same project
+  tx = await createAuction(
+    creator,
+    project2,
+    DutchAuctionDrop,
+    WETH,
+    {
+      editionContract: {
+        id: project2.address,
+        implementation: Implementation.editions
+      },
+      startTime: t + 120 // starts in 2 mins
+    }
+  )
+
+  const [auctionId3] = await getEventArguments(tx, "AuctionCreated")
+  console.log(`${count.increment()} creator created another auction:${auctionId3}`, tx.hash)
+
+
   // mine an hour in time
   // NOTE[george]: this is a precution if the seed script has already been run
   await mineOneHour()
+
+  // end the first auction
+  tx = await DutchAuctionDrop.connect(creator).endAuction(auctionId)
+  console.log(`${count.increment()} creator ended auction:${auctionId}`, tx.hash)
 
   // add creator profile
   await Profiles.connect(creator).update({
