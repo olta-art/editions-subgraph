@@ -36,6 +36,10 @@ dataSources:
           handler: handleSeededEditionPurchased
         - event: AuctionApprovalUpdated(uint256,address,bool)
           handler: handleAuctionApprovalUpdated
+        - event: AuctionCanceled(uint256,address)
+          handler: handleAuctionCanceled
+        - event: AuctionEnded(uint256,address)
+          handler: handleAuctionEnded
       file: ./src/dutchAuctionDrop.ts
   - kind: ethereum/contract
     name: ProjectCreator
