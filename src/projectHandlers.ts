@@ -164,6 +164,12 @@ function burnHandler<T extends Transfer>(event: T, context: DataSourceContext): 
   let project = findOrCreateProject(context.getString('project'))
   project.totalBurned = project.totalBurned.plus(BigInt.fromI32(1))
   project.totalSupply = project.totalSupply.minus(BigInt.fromI32(1))
+
+  if(project.totalBurned.equals(project.totalSupply)){
+    project.removedAtTimeStamp = event.block.timestamp
+    project.removedAtBlockNumber = event.block.number
+  }
+
   project.save()
 
   log.info(`Completed handler for Burn for edition {}`, [id])
@@ -372,21 +378,4 @@ function isSplitWallet(split: Address): boolean {
     if(hashResult.value.toHexString() === zeroAddress) return false
   */
   return true
-}
-
-export function ownershipTransferredHandler<T extends OwnershipTransferred>(event: T, context: DataSourceContext): void {
-  const projectId = context.getString('project')
-
-  log.info(`Starting: handler for OwnershipTransferred for project {}`, [projectId])
-
-  if(event.params.newOwner.toHexString() === zeroAddress){
-    let project = findOrCreateProject(projectId)
-
-    project.removedAtTimeStamp = event.block.timestamp
-    project.removedAtBlockNumber = event.block.number
-
-    project.save()
-  }
-
-  log.info(`Completed: handler for OwnershipTransferred for project {}`, [projectId])
 }

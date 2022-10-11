@@ -386,27 +386,26 @@ const run = async () => {
 
   const [auctionId2] = await getEventArguments(tx, "AuctionCreated")
 
+  // cancel auction
   tx = await DutchAuctionDrop.connect(creator).cancelAuction(auctionId2)
   console.log(`${count.increment()} creator canceled auction:${auctionId2}`, tx.hash)
 
-  // create another auction for same project
-  tx = await createAuction(
-    creator,
-    project2,
-    DutchAuctionDrop,
-    WETH,
-    {
-      editionContract: {
-        id: project2.address,
-        implementation: Implementation.editions
-      },
-      startTime: t + 120 // starts in 2 mins
-    }
-  )
+  // burn entire project
 
-  const [auctionId3] = await getEventArguments(tx, "AuctionCreated")
-  console.log(`${count.increment()} creator created another auction:${auctionId3}`, tx.hash)
+  // set approved minter to curator so they can pay for burning
+  tx = await project2.connect(creator).setApprovedMinter(curator.address, true)
 
+  // mint all to curator
+  let numberCanMint = (await project2.connect(curator).numberCanMint()).toNumber()
+  const a: string[] = new Array(numberCanMint)
+  a.fill(curator.address)
+  tx = await project2.connect(curator).mintEditions(a)
+
+  // burn all
+  const promises = a.map(async (_, i) => await project2.connect(curator).burn(i + 1))
+  await Promise.all(promises)
+
+  console.log(`${count.increment()} curator burned all editions:${project2.address}`, tx.hash)
 
   // mine an hour in time
   // NOTE[george]: this is a precution if the seed script has already been run

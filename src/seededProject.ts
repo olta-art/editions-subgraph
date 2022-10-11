@@ -7,7 +7,6 @@ import {
   Approval,
   ApprovedMinter,
   RoyaltyFundsRecipientChanged,
-  OwnershipTransferred
 } from '../types/templates/SeededProject/SeededProject'
 
 import {
@@ -16,8 +15,7 @@ import {
   approvalHandler,
   versionAddedHandler,
   versionURLUpdatedHandler,
-  royaltyFundsRecipientChangedHandler,
-  ownershipTransferredHandler
+  royaltyFundsRecipientChangedHandler
  } from './projectHandlers'
 
 let context = dataSource.context()
@@ -28,4 +26,3 @@ export function handleApproval(event: Approval): void { approvalHandler(event, c
 export function handleVersionAdded(event: VersionAdded): void { versionAddedHandler(event, context) }
 export function handleVersionURLUpdated(event: VersionURLUpdated): void { versionURLUpdatedHandler(event, context) }
 export function handleRoyaltyFundsRecipientChanged(event: RoyaltyFundsRecipientChanged): void { royaltyFundsRecipientChangedHandler(event, context)}
-export function handleOwnershipTransferred(event: OwnershipTransferred): void {ownershipTransferredHandler(event, context)}

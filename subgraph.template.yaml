@@ -154,8 +154,6 @@ templates:
           handler: handleApprovedMinter
         - event: RoyaltyFundsRecipientChanged(address)
           handler: handleRoyaltyFundsRecipientChanged
-        - event: OwnershipTransferred(indexed address,indexed address)
-          handler: handleOwnershipTransferred
         # TODO: set price sale eth
         # TODO: other erc-721 events
       file: ./src/standardProject.ts
@@ -195,8 +193,6 @@ templates:
           handler: handleApprovedMinter
         - event: RoyaltyFundsRecipientChanged(address)
           handler: handleRoyaltyFundsRecipientChanged
-        - event: OwnershipTransferred(indexed address,indexed address)
-          handler: handleOwnershipTransferred
         # TODO: set price sale eth
         # TODO: other erc-721 events
       file: ./src/seededProject.ts
