@@ -166,7 +166,7 @@ function burnHandler<T extends Transfer>(event: T, context: DataSourceContext): 
   project.totalSupply = project.totalSupply.minus(BigInt.fromI32(1))
 
   if(project.totalBurned.equals(project.totalSupply)){
-    project.removedAtTimeStamp = event.block.timestamp
+    project.removedAtTimestamp = event.block.timestamp
     project.removedAtBlockNumber = event.block.number
   }
 

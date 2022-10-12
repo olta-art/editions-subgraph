@@ -87,7 +87,7 @@ type Project @entity {
   createdAtBlockNumber: BigInt!
 
   "The timestamp of the block the Project was removed in"
-  removedAtTimeStamp: BigInt!
+  removedAtTimestamp: BigInt!
 
   "The number of the block the Project was removed in"
   removedAtBlockNumber: BigInt!
@@ -232,10 +232,10 @@ type Edition @entity {
   transfers: [Transfer!]! @derivedFrom(field: "edition")
 
   "The timestamp of the block the edition was burned in"
-  burnedAtTimeStamp: BigInt
+  burnedAtTimeStamp: BigInt!
 
   "The number of the block the edition was burned in"
-  burnedAtBlockNumber: BigInt
+  burnedAtBlockNumber: BigInt!
 
   "The approved user of the edition"
   approved: User
