@@ -15,7 +15,7 @@ import {
   approvalHandler,
   versionAddedHandler,
   versionURLUpdatedHandler,
-  royaltyFundsRecipientChangedHandler
+  royaltyFundsRecipientChangedHandler,
  } from './projectHandlers'
 
 let context = dataSource.context()

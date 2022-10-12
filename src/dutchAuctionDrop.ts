@@ -2,7 +2,9 @@ import {
   AuctionCreated,
   AuctionApprovalUpdated,
   EditionPurchased,
-  SeededEditionPurchased
+  SeededEditionPurchased,
+  AuctionCanceled,
+  AuctionEnded
 } from '../types/DutchAuctionDrop/DutchAuctionDrop'
 
 import {
@@ -90,6 +92,42 @@ export function handleSeededEditionPurchased(event: SeededEditionPurchased): voi
   createPurchase(event, id)
 
   log.info(`Completed handler for SeededEditionPurchased on auction {}`, [id])
+}
+
+export function handleAuctionCanceled(event: AuctionCanceled): void {
+  const id = event.params.auctionId.toString()
+  log.info(`Starting handler for AuctionCanceled on auction {}`, [id])
+
+  let auction = DutchAuctionDrop.load(id)
+
+  if(auction == null) {
+    log.error('Missing Auction with id {} for approval', [id])
+    return
+  }
+
+  auction.status = "Canceled"
+  auction.save()
+
+  log.info(`Completed handler for AuctionCanceled on auction {}`, [id])
+}
+
+export function handleAuctionEnded(event: AuctionEnded): void {
+  const id = event.params.auctionId.toString()
+  log.info(`Starting handler for AuctionEnded on auction {}`, [id])
+
+  let auction = DutchAuctionDrop.load(id)
+
+  if(auction == null) {
+    log.error('Missing Auction with id {} for approval', [id])
+    return
+  }
+
+  auction.finalizedAtTimestamp = event.block.timestamp
+  auction.finalizedAtBlockNumber = event.block.number
+  auction.status = "Finished"
+  auction.save()
+
+  log.info(`Completed handler for AuctionEnded on auction {}`, [id])
 }
 
 function createPurchase<T extends EditionPurchased>(event: T, id: string): void {

@@ -7,6 +7,7 @@ import {
   Approval,
   ApprovedMinter,
   RoyaltyFundsRecipientChanged,
+  OwnershipTransferred
 } from '../types/templates/StandardProject/StandardProject'
 
 import {
@@ -163,6 +164,12 @@ function burnHandler<T extends Transfer>(event: T, context: DataSourceContext): 
   let project = findOrCreateProject(context.getString('project'))
   project.totalBurned = project.totalBurned.plus(BigInt.fromI32(1))
   project.totalSupply = project.totalSupply.minus(BigInt.fromI32(1))
+
+  if(project.totalBurned.equals(project.totalSupply)){
+    project.removedAtTimestamp = event.block.timestamp
+    project.removedAtBlockNumber = event.block.number
+  }
+
   project.save()
 
   log.info(`Completed handler for Burn for edition {}`, [id])

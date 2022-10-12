@@ -6,7 +6,7 @@ import {
   VersionURLUpdated,
   Approval,
   ApprovedMinter,
-  RoyaltyFundsRecipientChanged
+  RoyaltyFundsRecipientChanged,
 } from '../types/templates/SeededProject/SeededProject'
 
 import {
