@@ -238,7 +238,7 @@ export function createDutchAuctionDrop(
  export function fetchCurrencyDecimals(currencyAddress: Address): i32 {
   let contract = ERC20.bind(currencyAddress)
   // try types uint8 for decimals
-  let decimalValue = null
+  let decimalValue = 0
   let decimalResult = contract.try_decimals()
   if (!decimalResult.reverted) {
     decimalValue = decimalResult.value
