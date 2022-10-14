@@ -68,26 +68,26 @@ export function transferHandler<T extends Transfer>(event: T, context: DataSourc
   // create transfer
   let transferId = `${editionId}-${event.transaction.hash.toHexString()}`
   let transfer = findOrCreateTransfer(transferId)
+  let from = findOrCreateUser(event.params.from.toHexString())
+  let to = findOrCreateUser(event.params.to.toHexString())
   transfer.id = transferId
   transfer.transactionHash = event.transaction.hash.toHexString()
   transfer.edition = editionId
-  transfer.from = event.params.from.toHexString()
-  transfer.to = event.params.to.toHexString()
+  transfer.from = from.id
+  transfer.to = to.id
   transfer.createdAtTimestamp = event.block.timestamp
   transfer.createdAtBlockNumber = event.block.number
   transfer.save()
 
   // handle mint
-  let from = event.params.from.toHexString()
-  if(!from || (from == zeroAddress)){
+  if(!from || (from.id == zeroAddress)){
     mintHandler(event, context)
     log.info(`Completed handler for Transfer for edition {}`, [editionId])
     return
   }
 
   // handle burn
-  let to = event.params.to.toHexString()
-  if(!to || (to == zeroAddress)){
+  if(!to || (to.id == zeroAddress)){
     burnHandler(event, context)
     log.info(`Completed handler for Transfer for edition {}`, [editionId])
     return
@@ -95,8 +95,8 @@ export function transferHandler<T extends Transfer>(event: T, context: DataSourc
 
   // update edition
   let edition = findOrCreateEdition(editionId)
-  edition.owner = to
-  edition.prevOwner = from
+  edition.owner = to.id
+  edition.prevOwner = from.id
   edition.save()
 
   log.info(`Completed handler for Transfer for edition {}`, [editionId])
@@ -112,7 +112,7 @@ function mintHandler<T extends Transfer>(event: T, context: DataSourceContext): 
   edition.number = event.params.tokenId
   edition.project = context.getString('project')
   edition.owner = findOrCreateUser(event.params.to.toHexString()).id
-  edition.prevOwner = zeroAddress
+  edition.prevOwner = findOrCreateUser(zeroAddress).id
   edition.createdAtTransactionHash = event.transaction.hash.toHexString()
   edition.createdAtTimestamp = event.block.timestamp
   edition.createdAtBlockNumber = event.block.number
@@ -155,8 +155,8 @@ function burnHandler<T extends Transfer>(event: T, context: DataSourceContext): 
 
   edition.burnedAtTimeStamp = event.block.timestamp
   edition.burnedAtBlockNumber = event.block.number
-  edition.owner = zeroAddress
-  edition.prevOwner = event.params.from.toHexString()
+  edition.owner = findOrCreateUser(zeroAddress).id
+  edition.prevOwner = findOrCreateUser(event.params.from.toHexString()).id
 
   edition.save()
 
