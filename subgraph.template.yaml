@@ -154,7 +154,10 @@ templates:
           handler: handleApprovedMinter
         - event: RoyaltyFundsRecipientChanged(address)
           handler: handleRoyaltyFundsRecipientChanged
-        # TODO: set price sale eth
+        - event: PriceChanged(uint256)
+          handler: handlePriceChange
+        - event: EditionSold(uint256,address)
+          handler: handleEditionSold
         # TODO: other erc-721 events
       file: ./src/standardProject.ts
   - name: SeededProject
@@ -193,6 +196,9 @@ templates:
           handler: handleApprovedMinter
         - event: RoyaltyFundsRecipientChanged(address)
           handler: handleRoyaltyFundsRecipientChanged
-        # TODO: set price sale eth
+        - event: PriceChanged(uint256)
+          handler: handlePriceChange
+        - event: EditionSold(uint256,address)
+          handler: handleEditionSold
         # TODO: other erc-721 events
       file: ./src/seededProject.ts
