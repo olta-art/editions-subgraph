@@ -94,6 +94,9 @@ type Project @entity {
 
   "The dutch auction drops associated with this project"
   dutchAuctionDrops: [DutchAuctionDrop!] @derivedFrom(field: "project")
+
+  "The sale price in Matic of this project - zero means not for sale"
+  salePrice: BigInt!
 }
 
 type ProjectMinterApproval @entity {
