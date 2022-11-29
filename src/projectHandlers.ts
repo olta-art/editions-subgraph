@@ -7,7 +7,9 @@ import {
   Approval,
   ApprovedMinter,
   RoyaltyFundsRecipientChanged,
-  OwnershipTransferred
+  OwnershipTransferred,
+  PriceChanged,
+  EditionSold
 } from '../types/templates/StandardProject/StandardProject'
 
 import {
@@ -36,6 +38,7 @@ import {
   zeroAddress,
   formatLabel,
   addVersion,
+  findOrCreateCurrency,
 } from './helpers'
 
 import {
@@ -378,4 +381,50 @@ function isSplitWallet(split: Address): boolean {
     if(hashResult.value.toHexString() === zeroAddress) return false
   */
   return true
+}
+
+export function priceChangedHandler<T extends PriceChanged>(event: T, context: DataSourceContext): void {
+  const projectId = context.getString('project')
+
+  log.info(`Starting: handler for priceChange for project {}`, [projectId])
+
+  let project = findOrCreateProject(projectId)
+  project.salePrice = event.params.amount
+
+  project.save()
+
+  log.info(`Completed: handler for priceChange for project {}`, [projectId])
+}
+
+export function editionSoldHandler<T extends EditionSold>(event: T, context: DataSourceContext): void {
+  const projectId = context.getString('project')
+
+  log.info(`Starting: handler for editionSold for project {}`, [projectId])
+
+  let id = event.transaction.hash.toHexString()
+
+  let purchase = new Purchase(id)
+
+  purchase.id = id
+  purchase.transactionHash = id
+  purchase.dutchAuctionDrop = null
+  purchase.amount = event.params.price
+  purchase.collector = event.params.owner.toHexString()
+  purchase.purchaseType = "Final"
+  purchase.createdAtTimestamp = event.block.timestamp
+  purchase.createdAtBlockNumber = event.block.number
+  purchase.currency = findOrCreateCurrency(zeroAddress).id
+
+  /* NOTE:
+  * temporarily assign edition as zero address
+  * because the edition id is not an event param.
+  * mintHandler() will update purchase.edition
+  * using the transaction hash to find the purchase entity
+  */
+  let edition = findOrCreateEdition(zeroAddress)
+  purchase.edition = edition.id
+
+  purchase.save()
+
+  log.info(`Completed: handler for priceChange for project {}`, [projectId])
 }
