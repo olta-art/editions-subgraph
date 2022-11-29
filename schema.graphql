@@ -336,7 +336,7 @@ type Purchase @entity {
   edition: Edition!
 
   "The dutch auction drop associated with the Purchase"
-  dutchAuctionDrop: DutchAuctionDrop!
+  dutchAuctionDrop: DutchAuctionDrop
 
   "The amount of the Purchase"
   amount: BigInt!
