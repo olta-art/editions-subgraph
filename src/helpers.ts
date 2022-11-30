@@ -212,8 +212,8 @@ export function createDutchAuctionDrop(
   // currency.liquidity = BigInt.fromI32(0)
 
   if (id === zeroAddress) {
-    currency.name = 'Ethereum'
-    currency.symbol = 'ETH'
+    currency.name = "Matic"
+    currency.symbol = 'Matic'
     currency.decimals = 18
     currency.save()
     return currency

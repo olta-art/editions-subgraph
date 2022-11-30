@@ -6,7 +6,9 @@ import {
   VersionURLUpdated,
   Approval,
   ApprovedMinter,
-  RoyaltyFundsRecipientChanged
+  RoyaltyFundsRecipientChanged,
+  PriceChanged,
+  EditionSold,
 } from '../types/templates/StandardProject/StandardProject'
 
 import {
@@ -16,6 +18,8 @@ import {
   versionAddedHandler,
   versionURLUpdatedHandler,
   royaltyFundsRecipientChangedHandler,
+  priceChangedHandler,
+  editionSoldHandler
  } from './projectHandlers'
 
 let context = dataSource.context()
@@ -26,3 +30,5 @@ export function handleApproval(event: Approval): void { approvalHandler(event, c
 export function handleVersionAdded(event: VersionAdded): void { versionAddedHandler(event, context) }
 export function handleVersionURLUpdated(event: VersionURLUpdated): void { versionURLUpdatedHandler(event, context) }
 export function handleRoyaltyFundsRecipientChanged(event: RoyaltyFundsRecipientChanged): void { royaltyFundsRecipientChangedHandler(event, context)}
+export function handlePriceChanged(event: PriceChanged): void { priceChangedHandler(event, context)}
+export function handleEditionSold(event: EditionSold): void { editionSoldHandler(event, context)}
