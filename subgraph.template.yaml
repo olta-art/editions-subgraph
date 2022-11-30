@@ -155,7 +155,7 @@ templates:
         - event: RoyaltyFundsRecipientChanged(address)
           handler: handleRoyaltyFundsRecipientChanged
         - event: PriceChanged(uint256)
-          handler: handlePriceChange
+          handler: handlePriceChanged
         - event: EditionSold(uint256,address)
           handler: handleEditionSold
         # TODO: other erc-721 events
@@ -197,7 +197,7 @@ templates:
         - event: RoyaltyFundsRecipientChanged(address)
           handler: handleRoyaltyFundsRecipientChanged
         - event: PriceChanged(uint256)
-          handler: handlePriceChange
+          handler: handlePriceChanged
         - event: EditionSold(uint256,address)
           handler: handleEditionSold
         # TODO: other erc-721 events
