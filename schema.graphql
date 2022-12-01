@@ -94,6 +94,9 @@ type Project @entity {
 
   "The dutch auction drops associated with this project"
   dutchAuctionDrops: [DutchAuctionDrop!] @derivedFrom(field: "project")
+
+  "The sale price in Matic of this project - zero means not for sale"
+  salePrice: BigInt!
 }
 
 type ProjectMinterApproval @entity {
@@ -333,7 +336,7 @@ type Purchase @entity {
   edition: Edition!
 
   "The dutch auction drop associated with the Purchase"
-  dutchAuctionDrop: DutchAuctionDrop!
+  dutchAuctionDrop: DutchAuctionDrop
 
   "The amount of the Purchase"
   amount: BigInt!
